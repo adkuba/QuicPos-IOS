@@ -7,10 +7,11 @@ App needs to check if userId is not null during post downloading. Display post g
 ## XCode-Swift notes
 - Sometimes you need to log in again to Apple account: Xcode -> Preference -> Accounts
 - Im using SwiftUI [great tutorial](https://developer.apple.com/tutorials/swiftui/composing-complex-interfaces), **it's all based on views like components in Vue, you combine them and switch between**
+- QuicPosApp.swift is like in SpringBoot main function that starts app (?)
 
 ## Apollo usage
 - download schema from your QraphQL server [tutorial](https://www.apollographql.com/docs/ios/tutorial/tutorial-obtain-schema/) -> project settings - target - build phases - (add ApolloCLI build phase)
-```
+```sh
 # Go to the build root and search up the chain to find the Derived Data Path where the source packages are checked out.
 DERIVED_DATA_CANDIDATE="${BUILD_ROOT}"
 
