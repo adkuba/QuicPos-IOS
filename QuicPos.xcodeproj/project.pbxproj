@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		8C6C8792252C569800D4D042 /* PostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C6C8791252C569800D4D042 /* PostView.swift */; };
+		8C6C879A252F203C00D4D042 /* GetPost.graphql in Resources */ = {isa = PBXBuildFile; fileRef = 8C6C8799252F203B00D4D042 /* GetPost.graphql */; };
 		8C6CC3852528CDB8005E6430 /* QuicPosApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C6CC3842528CDB8005E6430 /* QuicPosApp.swift */; };
 		8C6CC3872528CDB8005E6430 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C6CC3862528CDB8005E6430 /* ContentView.swift */; };
 		8C6CC3892528CDC1005E6430 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8C6CC3882528CDC1005E6430 /* Assets.xcassets */; };
@@ -39,6 +40,7 @@
 
 /* Begin PBXFileReference section */
 		8C6C8791252C569800D4D042 /* PostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostView.swift; sourceTree = "<group>"; };
+		8C6C8799252F203B00D4D042 /* GetPost.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = GetPost.graphql; sourceTree = "<group>"; };
 		8C6CC3812528CDB8005E6430 /* QuicPos.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QuicPos.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8C6CC3842528CDB8005E6430 /* QuicPosApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuicPosApp.swift; sourceTree = "<group>"; };
 		8C6CC3862528CDB8005E6430 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -115,6 +117,7 @@
 				8C6CC3C3252B080C005E6430 /* API.swift */,
 				8C6CC3BE252B0648005E6430 /* schema.json */,
 				8C6CC3D6252B0D85005E6430 /* GetUser.graphql */,
+				8C6C8799252F203B00D4D042 /* GetPost.graphql */,
 				8C6CC3D7252B0DBF005E6430 /* Network.swift */,
 				8C6CC38A2528CDC1005E6430 /* Preview Content */,
 			);
@@ -259,6 +262,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8C6CC38C2528CDC1005E6430 /* Preview Assets.xcassets in Resources */,
+				8C6C879A252F203C00D4D042 /* GetPost.graphql in Resources */,
 				8C6CC3892528CDC1005E6430 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
