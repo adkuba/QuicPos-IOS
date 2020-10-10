@@ -11,13 +11,9 @@ struct ContentView: View {
     
     //state allows modification during self invoke
     @State var userId = UserDefaults.standard.string(forKey: "userId")
-    
-    @State var showingAlert = false
-    @State var errorMessage = ""
-    @State var post1 = "Post 1"
-    @State var post2 = "Post 2"
+    @State var post1 = ""
+    @State var post2 = ""
     @State var postReady = false
-    @State var postError = "OK"
     @State var firstOffset = CGSize(width: 0, height: 0)
     @State var opacity = 1.0
     @State var mode = "NORMAL"
@@ -44,14 +40,13 @@ struct ContentView: View {
                 
                 
                 //background post
-                PostView(text: post2, metrics: metrics.size, postReady: true, postError: "OK")
+                PostView(text: post2, metrics: metrics.size, postReady: true, offsetValue: CGSize(width: 0, height: 0))
                     .scaleEffect(1.1)
                     .brightness(-0.08)
                     .blur(radius: 10)
 
                 //foreground post
-                PostView(text: post1, metrics: metrics.size, postReady: postReady, postError: postError)
-                    .offset(firstOffset)
+                PostView(text: post1, metrics: metrics.size, postReady: postReady, offsetValue: firstOffset)
                     .opacity(opacity)
                     .gesture(DragGesture()
                                 .onChanged { gesture in
@@ -77,12 +72,8 @@ struct ContentView: View {
             group.notify(queue: .main) {
                 getPost(initial: true)
                 getPost()
-                self.showingAlert = true
-                print("alert showed")
+                print(userId ?? "no user ID")
             }
-        })
-        .alert(isPresented: $showingAlert, content: {
-            Alert(title: Text("userId: "), message: Text(self.errorMessage), dismissButton: .default(Text("Got it!")))
         })
         .preferredColorScheme(.dark)
     }
@@ -96,7 +87,7 @@ struct ContentView: View {
         if self.mode == "PRIVATE" {
             normalMode = false
         }
-        //check if have userId
+        //check userId in case of initial run failed
         saveUserId()
         group.notify(queue: .main) {
             Network.shared.apollo
@@ -109,18 +100,17 @@ struct ContentView: View {
                             } else {
                                 self.post2 = postConnection.text
                             }
-                            self.postError = "OK"
                         }
                         if let errors = graphQLResult.errors {
-                            self.postError = errors
+                            self.post1 = errors
                                 .map { $0.localizedDescription }
                                 .joined(separator: "\n")
                         }
                     case .failure(let error):
-                        self.postError = error.localizedDescription
+                        self.post1 = error.localizedDescription
                     }
+                    self.postReady = true
                 }
-            self.postReady = true
         }
     }
     
@@ -131,29 +121,25 @@ struct ContentView: View {
             DispatchQueue.main.async {
                 //fetch and save data
                 Network.shared.apollo
-                    .fetch(query: GetUserQuery()) { result in
+                    .fetch(query: GetUserQuery(), cachePolicy: .fetchIgnoringCacheCompletely) { result in
                         switch result {
                         case .success(let graphQLResult):
                             if let userConnection = graphQLResult.data?.createUser {
                                 UserDefaults.standard.setValue(userConnection, forKey: "userId")
                                 self.userId = userConnection
-                                self.errorMessage = userConnection
-                                print("userID saved")
                             }
                             if let errors = graphQLResult.errors {
-                                self.errorMessage = errors
+                                self.post1 = errors
                                     .map { $0.localizedDescription }
                                     .joined(separator: "\n")
                             }
                         case .failure(let error):
-                            self.errorMessage = error.localizedDescription
+                            self.post1 = error.localizedDescription
                         }
                         //notify results are downloaded
                         group.leave()
                     }
             }
-        } else {
-            self.errorMessage = self.userId!
         }
     }
 }
