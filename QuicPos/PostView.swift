@@ -7,9 +7,13 @@
 
 import SwiftUI
 
+struct Post {
+    var text: String
+}
+
 struct PostView: View {
     
-    var text: String
+    var post: Post
     var metrics: CGSize
     var postReady: Bool
     var offsetValue: CGSize
@@ -23,7 +27,7 @@ struct PostView: View {
                 .foregroundColor(Color(red: 50 / 255, green: 50 / 255, blue: 52 / 255))
                 .cornerRadius(10)
             if postReady {
-                Text(text).foregroundColor(Color.white)
+                Text(post.text).foregroundColor(Color.white)
                     .padding()
                     .frame(width: metrics.width * 0.85, height: 100, alignment: .leading)
             }
@@ -60,6 +64,6 @@ struct PostView: View {
 
 struct PostView_Previews: PreviewProvider {
     static var previews: some View {
-        PostView(text: "Post", metrics: CGSize(width: 450, height: 1600), postReady: true, offsetValue: CGSize(width: 0, height: 0))
+        PostView(post: Post(text: "Post"), metrics: CGSize(width: 450, height: 1600), postReady: true, offsetValue: CGSize(width: 0, height: 0))
     }
 }

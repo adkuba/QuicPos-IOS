@@ -19,6 +19,7 @@
 		8C6CC3B62528EB85005E6430 /* Apollo in Frameworks */ = {isa = PBXBuildFile; productRef = 8C6CC3B52528EB85005E6430 /* Apollo */; };
 		8C6CC3C4252B080C005E6430 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C6CC3C3252B080C005E6430 /* API.swift */; };
 		8C6CC3D8252B0DBF005E6430 /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C6CC3D7252B0DBF005E6430 /* Network.swift */; };
+		8CEC516625320E2F0056FB75 /* Creator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CEC516525320E2E0056FB75 /* Creator.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +58,7 @@
 		8C6CC3C3252B080C005E6430 /* API.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
 		8C6CC3D6252B0D85005E6430 /* GetUser.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = GetUser.graphql; sourceTree = "<group>"; };
 		8C6CC3D7252B0DBF005E6430 /* Network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Network.swift; sourceTree = "<group>"; };
+		8CEC516525320E2E0056FB75 /* Creator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Creator.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,6 +114,7 @@
 				8C6CC3842528CDB8005E6430 /* QuicPosApp.swift */,
 				8C6CC3862528CDB8005E6430 /* ContentView.swift */,
 				8C6C8791252C569800D4D042 /* PostView.swift */,
+				8CEC516525320E2E0056FB75 /* Creator.swift */,
 				8C6CC3882528CDC1005E6430 /* Assets.xcassets */,
 				8C6CC38D2528CDC1005E6430 /* Info.plist */,
 				8C6CC3C3252B080C005E6430 /* API.swift */,
@@ -311,6 +314,7 @@
 			files = (
 				8C6CC3872528CDB8005E6430 /* ContentView.swift in Sources */,
 				8C6CC3C4252B080C005E6430 /* API.swift in Sources */,
+				8CEC516625320E2F0056FB75 /* Creator.swift in Sources */,
 				8C6CC3D8252B0DBF005E6430 /* Network.swift in Sources */,
 				8C6C8792252C569800D4D042 /* PostView.swift in Sources */,
 				8C6CC3852528CDB8005E6430 /* QuicPosApp.swift in Sources */,
