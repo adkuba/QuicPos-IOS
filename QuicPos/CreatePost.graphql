@@ -1,0 +1,22 @@
+mutation CreatePost($text: String!, $userId: String!, $image: String!) {
+  createPost(
+    input: {
+      text: $text
+      userId: $userId
+      image: $image
+    }
+  ) {
+    ID
+    text
+    userId
+    shares
+    views {
+      userId
+      time
+    }
+    creationTime
+    initialReview
+    image
+    reports
+  }
+}

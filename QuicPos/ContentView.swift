@@ -43,7 +43,7 @@ struct ContentView: View {
                         Text(mode)
                             .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
                             .foregroundColor(.white)
-                    }).offset(x: 0, y: -metrics.size.height/2 + 50)
+                    }).offset(x: 0, y: -metrics.size.height/2 + 40)
                     
                     
                     //add button
@@ -54,7 +54,7 @@ struct ContentView: View {
                             .font(.system(size: 27))
                             .foregroundColor(.white)
                         }).buttonStyle(PlainButtonStyle())
-                        .offset(x: 0, y: metrics.size.height/2 - 50)
+                        .offset(x: 0, y: metrics.size.height/2 - 40)
                     
                     
                     //background post
@@ -137,6 +137,7 @@ struct ContentView: View {
                                 self.post1 = Post(text: postConnection.text, image: postConnection.image)
                             } else {
                                 self.post2 = Post(text: postConnection.text, image: postConnection.image)
+                                self.post1.nextImage = postConnection.image
                                 withAnimation(Animation.easeInOut(duration: 0.4).delay(0.4)){
                                     self.opacityBG = 1
                                 }

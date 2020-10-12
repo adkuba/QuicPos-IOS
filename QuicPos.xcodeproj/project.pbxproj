@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8C412CAB253441A500C7FC51 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C412CAA253441A500C7FC51 /* ImagePicker.swift */; };
 		8C6C8792252C569800D4D042 /* PostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C6C8791252C569800D4D042 /* PostView.swift */; };
 		8C6C879A252F203C00D4D042 /* GetPost.graphql in Resources */ = {isa = PBXBuildFile; fileRef = 8C6C8799252F203B00D4D042 /* GetPost.graphql */; };
 		8C6CC3852528CDB8005E6430 /* QuicPosApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C6CC3842528CDB8005E6430 /* QuicPosApp.swift */; };
@@ -41,6 +42,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		8C412CAA253441A500C7FC51 /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
+		8C412CB22534487100C7FC51 /* CreatePost.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = CreatePost.graphql; sourceTree = "<group>"; };
 		8C6C8791252C569800D4D042 /* PostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostView.swift; sourceTree = "<group>"; };
 		8C6C8799252F203B00D4D042 /* GetPost.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = GetPost.graphql; sourceTree = "<group>"; };
 		8C6CC3812528CDB8005E6430 /* QuicPos.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QuicPos.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -123,8 +126,10 @@
 				8C6CC3BE252B0648005E6430 /* schema.json */,
 				8C6CC3D6252B0D85005E6430 /* GetUser.graphql */,
 				8C6C8799252F203B00D4D042 /* GetPost.graphql */,
+				8C412CB22534487100C7FC51 /* CreatePost.graphql */,
 				8C6CC3D7252B0DBF005E6430 /* Network.swift */,
 				8CEC516D2532F63C0056FB75 /* ImageLoader.swift */,
+				8C412CAA253441A500C7FC51 /* ImagePicker.swift */,
 				8C6CC38A2528CDC1005E6430 /* Preview Content */,
 			);
 			path = QuicPos;
@@ -320,6 +325,7 @@
 				8C6CC3C4252B080C005E6430 /* API.swift in Sources */,
 				8CEC516625320E2F0056FB75 /* Creator.swift in Sources */,
 				8C6CC3D8252B0DBF005E6430 /* Network.swift in Sources */,
+				8C412CAB253441A500C7FC51 /* ImagePicker.swift in Sources */,
 				8C6C8792252C569800D4D042 /* PostView.swift in Sources */,
 				8C6CC3852528CDB8005E6430 /* QuicPosApp.swift in Sources */,
 			);

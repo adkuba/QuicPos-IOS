@@ -11,6 +11,7 @@ struct Post {
     var text: String
     var image: String? //? optional field
     var loading: Bool?
+    var nextImage: String?
 }
 
 struct PostView: View {
@@ -19,7 +20,9 @@ struct PostView: View {
     var metrics: CGSize
     
     @State @ObservedObject var imageLoader = ImageLoader(urlString: "")
+    @State @ObservedObject var nextImageLoader = ImageLoader(urlString: "")
     @State var image:UIImage = UIImage()
+    @State var nextImage: UIImage = UIImage()
     @State var displayImage = false
     @State var timer = Timer.publish(every: 0.6, on: .main, in: .common).autoconnect()
     @State var blurValue = CGFloat(0)
@@ -37,17 +40,35 @@ struct PostView: View {
                 if displayImage {
                     Image(uiImage: image)
                         .resizable()
-                        .aspectRatio(contentMode: .fit)
+                        .scaledToFill()
                         .frame(width: metrics.width * 0.85, height: 150)
                         .onReceive(imageLoader.didChange) { data in
                             self.image = UIImage(data: data) ?? UIImage()
                         }
+                        .clipped()
                 }
             }
         }
         .fixedSize()
+        .onChange(of: post.nextImage, perform: { value in
+            if let im = value, im != ""{
+                nextImageLoader = ImageLoader(urlString: "https://storage.googleapis.com/quicpos-images/" + im)
+            }
+        })
+        .onReceive(nextImageLoader.didChange) { data in
+            self.nextImage = UIImage(data: data) ?? UIImage()
+        }
         .onChange(of: post.image, perform: { value in
-            initNewImage(image: value)
+            //system ladowania nastepnego zdjęcia
+            //nie jest w 100% optymalne bo przechowuje 2 zdj w pamięci pierwszego posta
+            //jeśli mamy jakieś następne zdj to je wykorzystujemy
+            if (post.nextImage ?? "") != "" {
+                self.displayImage = true
+                self.image = self.nextImage
+            } else {
+                //nie mamy następnego zdj, sprawdzamy czy obecne zdj istnieje
+                initNewImage(image: value)
+            }
         })
         .animation(nil)
         .blur(radius: blurValue)
@@ -77,9 +98,11 @@ struct PostView: View {
     
     func initNewImage(image: String?){
         if let im = image, im != "" {
+            //jesli istnieje ladujemy je - wazna dla posta w tle
             self.displayImage = true
             self.imageLoader = ImageLoader(urlString: "https://storage.googleapis.com/quicpos-images/" + image!)
         } else {
+            //jesli nie mamy zadnego zdj to nie wyswietlamy
             self.displayImage = false
         }
     }
