@@ -11,11 +11,14 @@ struct ContentView: View {
     
     //state allows modification during self invoke
     @State var userId = UserDefaults.standard.string(forKey: "userId")
-    @State var post1 = Post(text: "")
+    @State var post1 = Post(text: "Loading...")
     @State var post2 = Post(text: "")
-    @State var postReady = false
     @State var firstOffset = CGSize(width: 0, height: 0)
-    @State var opacity = 1.0
+    @State var opacityBG = 1.0
+    @State var postReady = false
+    @State var loading = true
+    @State var scaleFG = CGFloat(1)
+    @State var blurFG = CGFloat(0)
     @State var mode = "NORMAL"
     
     //DispatchGroup for async operations
@@ -55,30 +58,48 @@ struct ContentView: View {
                     
                     
                     //background post
-                    PostView(post: post2, metrics: metrics.size, postReady: true, offsetValue: CGSize(width: 0, height: 0))
+                    PostView(post: post2, metrics: metrics.size)
                         .scaleEffect(1.1)
                         .brightness(-0.08)
                         .blur(radius: 10)
+                        .opacity(opacityBG)
                     
 
                     //foreground post
-                    PostView(post: post1, metrics: metrics.size, postReady: postReady, offsetValue: firstOffset)
-                        .opacity(opacity)
+                    PostView(post: post1, metrics: metrics.size)
+                        .scaleEffect(scaleFG)
+                        .blur(radius: blurFG)
+                        .offset(firstOffset)
                         .gesture(DragGesture()
                                     .onChanged { gesture in
                                         self.firstOffset = gesture.translation
                                     }
                                     .onEnded { _ in
-                                        if getCGSizeLength(vector: self.firstOffset) > 100 && postReady {
-                                            self.opacity = 0
-                                            withAnimation(.easeInOut(duration: 0.5)){
+                                        if getCGSizeLength(vector: self.firstOffset) > 100 {
+                                            if postReady {
+                                                self.scaleFG = 1.1
+                                                self.blurFG = 10
                                                 self.post1 = self.post2
-                                                self.opacity = 1
+                                                self.firstOffset = .zero
+                                                withAnimation(Animation.easeInOut(duration: 0.2)){
+                                                    self.blurFG = 0
+                                                    self.scaleFG = 1
+                                                }
+                                                self.postReady = false
+                                                self.opacityBG = 0
+                                                getPost()
+                                            } else {
+                                                self.post1 = Post(text: "Loading...", loading: true)
+                                                self.loading = true
+                                                withAnimation(Animation.linear(duration: 0.1)){
+                                                    self.firstOffset = .zero
+                                                }
                                             }
-                                            self.postReady = false
-                                            getPost()
+                                        } else {
+                                            withAnimation(Animation.linear(duration: 0.1)){
+                                                self.firstOffset = .zero
+                                            }
                                         }
-                                        self.firstOffset = .zero
                                     })
                 }
             }
@@ -86,7 +107,6 @@ struct ContentView: View {
                 saveUserId()
                 //group notify will run when enter() and leave() are balanced, waits for userId to be downloaded
                 group.notify(queue: .main) {
-                    getPost(initial: true)
                     getPost()
                     print(userId ?? "no user ID")
                 }
@@ -113,21 +133,39 @@ struct ContentView: View {
                     switch result {
                     case .success(let graphQLResult):
                         if let postConnection = graphQLResult.data?.post {
-                            if initial {
-                                self.post1 = Post(text: postConnection.text)
+                            if loading {
+                                self.post1 = Post(text: postConnection.text, image: postConnection.image)
                             } else {
-                                self.post2 = Post(text: postConnection.text)
+                                self.post2 = Post(text: postConnection.text, image: postConnection.image)
+                                withAnimation(Animation.easeInOut(duration: 0.4).delay(0.4)){
+                                    self.opacityBG = 1
+                                }
                             }
                         }
                         if let errors = graphQLResult.errors {
-                            self.post1 = Post(text: errors
-                                                .map { $0.localizedDescription }
-                                                .joined(separator: "\n"))
+                            if loading {
+                                self.post1 = Post(text: errors
+                                                    .map { $0.localizedDescription }
+                                                    .joined(separator: "\n"))
+                            } else {
+                                self.post2 = Post(text: errors
+                                                    .map { $0.localizedDescription }
+                                                    .joined(separator: "\n"))
+                            }
                         }
                     case .failure(let error):
-                        self.post1 = Post(text: error.localizedDescription)
+                        if loading {
+                            self.post1 = Post(text: error.localizedDescription)
+                        } else {
+                            self.post2 = Post(text: error.localizedDescription)
+                        }
                     }
-                    self.postReady = true
+                    if loading {
+                        self.loading = false
+                        getPost()
+                    } else {
+                        self.postReady = true
+                    }
                 }
         }
     }
