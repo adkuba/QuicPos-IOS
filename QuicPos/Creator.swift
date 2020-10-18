@@ -9,7 +9,7 @@ import SwiftUI
 
 struct Creator: View {
     
-    @State var newText = ""
+    @State var newText = "New post"
     @State var isShowPhotoLibrary = false
     @State var image = UIImage()
     @State var userId = UserDefaults.standard.string(forKey: "userId")
@@ -18,41 +18,49 @@ struct Creator: View {
     
     var body: some View {
         GeometryReader { metrics in
-            ZStack{
-                Color.black
-                
-                
+            VStack{
+            ScrollView(.vertical){
                 VStack{
-                    TextField("Enter text...", text: $newText)
-                        .foregroundColor(.white)
-                        .frame(width: metrics.size.width * 0.85, height: 200)
+                    ZStack{
+                        TextEditor(text: $newText)
+                        Text(newText).opacity(0).padding(.all, 8)
+                    }
+                    .padding()
                     
-                    Image(uiImage: self.image)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: metrics.size.width * 0.85, height: 200)
-                        .clipped()
-                    
+                    if (self.image != UIImage()){
+                        Image(uiImage: self.image)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: metrics.size.width * 0.9, height: metrics.size.width * 0.5)
+                            .clipped()
+                            .cornerRadius(10)
+                            .padding()
+                    }
+                }
+            }
+                Button(action: {
+                    self.isShowPhotoLibrary = true
+                }) {
                     HStack{
                         Image(systemName: "photo")
                             .font(.system(size: 20))
                         
-                        Button(action: {
-                            self.isShowPhotoLibrary = true
-                        }, label: {
-                            Text("Select image")
-                        })
+                        Text("Select image")
                     }
+                    .foregroundColor(.white)
+                    .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: 50)
+                    .background(Color.blue)
                 }
-                //$ to jest binding
-                .alert(isPresented: $displayAlert, content: {
-                    Alert(
-                        title: Text("Result"),
-                        message: Text(alertMessage),
-                        dismissButton: .default(Text("OK")))
-                })
             }
+            //$ to jest binding
+            .alert(isPresented: $displayAlert, content: {
+                Alert(
+                    title: Text("Result"),
+                    message: Text(alertMessage),
+                    dismissButton: .default(Text("OK")))
+            })
         }
+        .navigationBarTitle(Text(""), displayMode: .inline)
         .navigationBarItems(
             trailing:
                 Button(action: {
@@ -62,6 +70,7 @@ struct Creator: View {
                 }))
         .sheet(isPresented: $isShowPhotoLibrary) {
             ImagePicker(sourceType: .photoLibrary, selectedImage: self.$image)
+                .preferredColorScheme(.dark)
         }
     }
     

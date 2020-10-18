@@ -30,7 +30,7 @@ struct PostView: View {
     var body: some View {
         ZStack{
             Rectangle().frame(minWidth: metrics.width * 0.9, minHeight: 100, alignment: .center)
-                .foregroundColor(Color(red: 50 / 255, green: 50 / 255, blue: 52 / 255))
+                .foregroundColor(Color(red: 27 / 255, green: 28 / 255, blue: 30 / 255))
                 .cornerRadius(10)
             VStack{
                 Text(post.text).foregroundColor(Color.white)
