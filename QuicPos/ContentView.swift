@@ -11,9 +11,9 @@ struct ContentView: View {
     
     //state allows modification during self invoke
     @State var userId = UserDefaults.standard.string(forKey: "userId")
-    @State var post1 = Post(text: "Loading...")
+    @State var post1 = Post(text: "Loading...", loading: true)
     @State var post2 = Post(text: "")
-    @State var firstOffset = CGSize(width: 0, height: 0)
+    @State var firstOffset = CGSize(width: 0, height: -15)
     @State var opacityBG = 1.0
     @State var postReady = false
     @State var loading = true
@@ -31,48 +31,40 @@ struct ContentView: View {
                 ZStack(){
                     Color.black
                     
-                    
-                    //mode button
-                    Button(action: {
-                        if mode == "NORMAL" {
-                            self.mode = "PRIVATE"
-                        } else {
-                            self.mode = "NORMAL"
-                        }
-                    }, label: {
-                        Text(mode)
-                            .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
-                            .foregroundColor(.white)
-                    }).offset(x: 0, y: -metrics.size.height/2 + 40)
-                    
-                    
                     //add button
                     NavigationLink(
                         destination: Creator(),
                         label: {
-                            Image(systemName: "plus")
-                            .font(.system(size: 27))
-                            .foregroundColor(.white)
-                        }).buttonStyle(PlainButtonStyle())
-                        .offset(x: 0, y: metrics.size.height/2 - 40)
+                            HStack{
+                                Image(systemName: "plus")
+                                    .font(.system(size: 20, weight: .semibold))
+                                
+                                Text("Create")
+                                    .fontWeight(.semibold)
+                            }
+                        })
+                        .offset(x: 0, y: metrics.size.height/2 - 30)
                     
                     
                     //background post
-                    PostView(post: post2, metrics: metrics.size)
+                    PostView(post: post2, metrics: metrics.size, selectedMode: mode)
                         .scaleEffect(1.1)
                         .brightness(-0.08)
                         .blur(radius: 10)
                         .opacity(opacityBG)
+                        .offset(x: 0, y: -10)
                     
 
                     //foreground post
-                    PostView(post: post1, metrics: metrics.size)
+                    PostView(post: post1, metrics: metrics.size, selectedMode: mode)
                         .scaleEffect(scaleFG)
                         .blur(radius: blurFG)
                         .offset(firstOffset)
                         .gesture(DragGesture()
                                     .onChanged { gesture in
-                                        self.firstOffset = gesture.translation
+                                        self.firstOffset = CGSize(
+                                            width: gesture.translation.width,
+                                            height: gesture.translation.height - 15)
                                     }
                                     .onEnded { _ in
                                         if getCGSizeLength(vector: self.firstOffset) > 100 {
@@ -80,7 +72,7 @@ struct ContentView: View {
                                                 self.scaleFG = 1.1
                                                 self.blurFG = 10
                                                 self.post1 = self.post2
-                                                self.firstOffset = .zero
+                                                self.firstOffset = CGSize(width: 0, height: -15)
                                                 withAnimation(Animation.easeInOut(duration: 0.2)){
                                                     self.blurFG = 0
                                                     self.scaleFG = 1
@@ -92,12 +84,12 @@ struct ContentView: View {
                                                 self.post1 = Post(text: "Loading...", loading: true)
                                                 self.loading = true
                                                 withAnimation(Animation.linear(duration: 0.1)){
-                                                    self.firstOffset = .zero
+                                                    self.firstOffset = CGSize(width: 0, height: -15)
                                                 }
                                             }
                                         } else {
                                             withAnimation(Animation.linear(duration: 0.1)){
-                                                self.firstOffset = .zero
+                                                self.firstOffset = CGSize(width: 0, height: -15)
                                             }
                                         }
                                     })
@@ -112,7 +104,27 @@ struct ContentView: View {
                 }
             })
             .preferredColorScheme(.dark)
-            .navigationBarHidden(true)
+            .navigationBarTitle(Text(""), displayMode: .inline)
+            .navigationBarItems(
+                leading:
+                    Text("QuicPos")
+                        .fontWeight(.semibold),
+                trailing:
+                    Button(action: {
+                        if (self.mode == "NORMAL"){
+                            self.mode = "PRIVATE"
+                        } else {
+                            self.mode = "NORMAL"
+                        }
+                    }, label: {
+                        if (self.mode == "NORMAL"){
+                            Image(systemName: "shield")
+                                .font(.system(size: 25))
+                        } else {
+                            Image(systemName: "lock.shield")
+                                .font(.system(size: 25))
+                        }
+                    }))
         }
     }
     

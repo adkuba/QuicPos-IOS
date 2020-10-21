@@ -9,7 +9,7 @@ import SwiftUI
 
 struct Creator: View {
     
-    @State var newText = "New post"
+    @State var newText = ""
     @State var isShowPhotoLibrary = false
     @State var image = UIImage()
     @State var userId = UserDefaults.standard.string(forKey: "userId")
@@ -22,9 +22,19 @@ struct Creator: View {
             ScrollView(.vertical){
                 VStack{
                     ZStack{
-                        TextEditor(text: $newText)
-                        Text(newText).opacity(0).padding(.all, 8)
+                        if (self.newText == ""){
+                            Text("Type...")
+                                .foregroundColor(.gray)
+                                .offset(x: -(metrics.size.width/2) + 50, y: 0)
+                        }
+                        ZStack{
+                            TextEditor(text: $newText)
+                                .foregroundColor(.white)
+                            Text(newText).opacity(0).padding(.all, 8)
+                        }
+                        .opacity(self.newText == "" ? 0.5 : 1)
                     }
+                    
                     .padding()
                     
                     if (self.image != UIImage()){
@@ -46,10 +56,10 @@ struct Creator: View {
                             .font(.system(size: 20))
                         
                         Text("Select image")
+                            .fontWeight(.semibold)
                     }
-                    .foregroundColor(.white)
                     .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: 50)
-                    .background(Color.blue)
+                    .background(Color.black)
                 }
             }
             //$ to jest binding
@@ -62,6 +72,8 @@ struct Creator: View {
         }
         .navigationBarTitle(Text(""), displayMode: .inline)
         .navigationBarItems(
+            leading:
+                Text("Create").offset(x: -10, y: 0),
             trailing:
                 Button(action: {
                     createPost()

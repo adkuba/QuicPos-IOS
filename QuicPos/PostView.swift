@@ -18,6 +18,7 @@ struct PostView: View {
     
     var post: Post
     var metrics: CGSize
+    var selectedMode: String
     
     @State @ObservedObject var imageLoader = ImageLoader(urlString: "")
     @State @ObservedObject var nextImageLoader = ImageLoader(urlString: "")
@@ -30,12 +31,15 @@ struct PostView: View {
     var body: some View {
         ZStack{
             Rectangle().frame(minWidth: metrics.width * 0.9, minHeight: 100, alignment: .center)
-                .foregroundColor(Color(red: 27 / 255, green: 28 / 255, blue: 30 / 255))
+                .foregroundColor(
+                    selectedMode == "NORMAL" ? Color(red: 27 / 255, green: 28 / 255, blue: 30 / 255) : Color.black)
+                .animation(.easeIn)
                 .cornerRadius(10)
             VStack{
                 Text(post.text).foregroundColor(Color.white)
                     .padding()
-                    .frame(width: metrics.width * 0.85, height: 100, alignment: .leading)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(width: metrics.width * 0.85, height: 70, alignment: .leading)
                 
                 if displayImage {
                     Image(uiImage: image)
@@ -47,6 +51,34 @@ struct PostView: View {
                         }
                         .clipped()
                 }
+                
+                Text("20.10.2020 11:45")
+                    .font(.system(size: 15))
+                    .foregroundColor(.gray)
+                    .padding()
+                    .frame(width: metrics.width * 0.85, height: 17, alignment: .leading)
+                
+                Text("0 views 0 reports")
+                    .font(.system(size: 15))
+                    .foregroundColor(.gray)
+                    .padding()
+                    .frame(width: metrics.width * 0.85, height: 17, alignment: .leading)
+                
+                HStack{
+                    Button(action: {}, label: {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.system(size: 22))
+                    })
+                    .offset(x: 0, y: -4)
+                    
+                    Button(action: {}, label: {
+                        Image(systemName: "exclamationmark.bubble")
+                            .font(.system(size: 22))
+                    })
+                    .offset(x: 20, y: 0)
+                }
+                .padding()
+                .frame(width: metrics.width * 0.85, height: 50, alignment: .leading)
             }
         }
         .fixedSize()
@@ -110,6 +142,6 @@ struct PostView: View {
 
 struct PostView_Previews: PreviewProvider {
     static var previews: some View {
-        PostView(post: Post(text: "Post"), metrics: CGSize(width: 450, height: 1600))
+        PostView(post: Post(text: "Post"), metrics: CGSize(width: 450, height: 1600), selectedMode: "NORMAL")
     }
 }
