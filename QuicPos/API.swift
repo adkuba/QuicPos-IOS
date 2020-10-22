@@ -15,15 +15,10 @@ public final class CreatePostMutation: GraphQLMutation {
         text
         userId
         shares
-        views {
-          __typename
-          userId
-          time
-        }
+        views
         creationTime
         initialReview
         image
-        reports
       }
     }
     """
@@ -73,7 +68,7 @@ public final class CreatePostMutation: GraphQLMutation {
     }
 
     public struct CreatePost: GraphQLSelectionSet {
-      public static let possibleTypes: [String] = ["Post"]
+      public static let possibleTypes: [String] = ["PostOut"]
 
       public static var selections: [GraphQLSelection] {
         return [
@@ -82,11 +77,10 @@ public final class CreatePostMutation: GraphQLMutation {
           GraphQLField("text", type: .nonNull(.scalar(String.self))),
           GraphQLField("userId", type: .nonNull(.scalar(String.self))),
           GraphQLField("shares", type: .nonNull(.scalar(Int.self))),
-          GraphQLField("views", type: .nonNull(.list(.nonNull(.object(View.selections))))),
+          GraphQLField("views", type: .nonNull(.scalar(Int.self))),
           GraphQLField("creationTime", type: .nonNull(.scalar(String.self))),
           GraphQLField("initialReview", type: .nonNull(.scalar(Bool.self))),
           GraphQLField("image", type: .nonNull(.scalar(String.self))),
-          GraphQLField("reports", type: .nonNull(.list(.nonNull(.scalar(String.self))))),
         ]
       }
 
@@ -96,8 +90,8 @@ public final class CreatePostMutation: GraphQLMutation {
         self.resultMap = unsafeResultMap
       }
 
-      public init(id: String, text: String, userId: String, shares: Int, views: [View], creationTime: String, initialReview: Bool, image: String, reports: [String]) {
-        self.init(unsafeResultMap: ["__typename": "Post", "ID": id, "text": text, "userId": userId, "shares": shares, "views": views.map { (value: View) -> ResultMap in value.resultMap }, "creationTime": creationTime, "initialReview": initialReview, "image": image, "reports": reports])
+      public init(id: String, text: String, userId: String, shares: Int, views: Int, creationTime: String, initialReview: Bool, image: String) {
+        self.init(unsafeResultMap: ["__typename": "PostOut", "ID": id, "text": text, "userId": userId, "shares": shares, "views": views, "creationTime": creationTime, "initialReview": initialReview, "image": image])
       }
 
       public var __typename: String {
@@ -145,12 +139,12 @@ public final class CreatePostMutation: GraphQLMutation {
         }
       }
 
-      public var views: [View] {
+      public var views: Int {
         get {
-          return (resultMap["views"] as! [ResultMap]).map { (value: ResultMap) -> View in View(unsafeResultMap: value) }
+          return resultMap["views"]! as! Int
         }
         set {
-          resultMap.updateValue(newValue.map { (value: View) -> ResultMap in value.resultMap }, forKey: "views")
+          resultMap.updateValue(newValue, forKey: "views")
         }
       }
 
@@ -180,64 +174,6 @@ public final class CreatePostMutation: GraphQLMutation {
           resultMap.updateValue(newValue, forKey: "image")
         }
       }
-
-      public var reports: [String] {
-        get {
-          return resultMap["reports"]! as! [String]
-        }
-        set {
-          resultMap.updateValue(newValue, forKey: "reports")
-        }
-      }
-
-      public struct View: GraphQLSelectionSet {
-        public static let possibleTypes: [String] = ["View"]
-
-        public static var selections: [GraphQLSelection] {
-          return [
-            GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
-            GraphQLField("userId", type: .nonNull(.scalar(String.self))),
-            GraphQLField("time", type: .nonNull(.scalar(Double.self))),
-          ]
-        }
-
-        public private(set) var resultMap: ResultMap
-
-        public init(unsafeResultMap: ResultMap) {
-          self.resultMap = unsafeResultMap
-        }
-
-        public init(userId: String, time: Double) {
-          self.init(unsafeResultMap: ["__typename": "View", "userId": userId, "time": time])
-        }
-
-        public var __typename: String {
-          get {
-            return resultMap["__typename"]! as! String
-          }
-          set {
-            resultMap.updateValue(newValue, forKey: "__typename")
-          }
-        }
-
-        public var userId: String {
-          get {
-            return resultMap["userId"]! as! String
-          }
-          set {
-            resultMap.updateValue(newValue, forKey: "userId")
-          }
-        }
-
-        public var time: Double {
-          get {
-            return resultMap["time"]! as! Double
-          }
-          set {
-            resultMap.updateValue(newValue, forKey: "time")
-          }
-        }
-      }
     }
   }
 }
@@ -253,15 +189,10 @@ public final class GetPostQuery: GraphQLQuery {
         text
         userId
         shares
-        views {
-          __typename
-          userId
-          time
-        }
+        views
         creationTime
         initialReview
         image
-        reports
       }
     }
     """
@@ -309,7 +240,7 @@ public final class GetPostQuery: GraphQLQuery {
     }
 
     public struct Post: GraphQLSelectionSet {
-      public static let possibleTypes: [String] = ["Post"]
+      public static let possibleTypes: [String] = ["PostOut"]
 
       public static var selections: [GraphQLSelection] {
         return [
@@ -318,11 +249,10 @@ public final class GetPostQuery: GraphQLQuery {
           GraphQLField("text", type: .nonNull(.scalar(String.self))),
           GraphQLField("userId", type: .nonNull(.scalar(String.self))),
           GraphQLField("shares", type: .nonNull(.scalar(Int.self))),
-          GraphQLField("views", type: .nonNull(.list(.nonNull(.object(View.selections))))),
+          GraphQLField("views", type: .nonNull(.scalar(Int.self))),
           GraphQLField("creationTime", type: .nonNull(.scalar(String.self))),
           GraphQLField("initialReview", type: .nonNull(.scalar(Bool.self))),
           GraphQLField("image", type: .nonNull(.scalar(String.self))),
-          GraphQLField("reports", type: .nonNull(.list(.nonNull(.scalar(String.self))))),
         ]
       }
 
@@ -332,8 +262,8 @@ public final class GetPostQuery: GraphQLQuery {
         self.resultMap = unsafeResultMap
       }
 
-      public init(id: String, text: String, userId: String, shares: Int, views: [View], creationTime: String, initialReview: Bool, image: String, reports: [String]) {
-        self.init(unsafeResultMap: ["__typename": "Post", "ID": id, "text": text, "userId": userId, "shares": shares, "views": views.map { (value: View) -> ResultMap in value.resultMap }, "creationTime": creationTime, "initialReview": initialReview, "image": image, "reports": reports])
+      public init(id: String, text: String, userId: String, shares: Int, views: Int, creationTime: String, initialReview: Bool, image: String) {
+        self.init(unsafeResultMap: ["__typename": "PostOut", "ID": id, "text": text, "userId": userId, "shares": shares, "views": views, "creationTime": creationTime, "initialReview": initialReview, "image": image])
       }
 
       public var __typename: String {
@@ -381,12 +311,12 @@ public final class GetPostQuery: GraphQLQuery {
         }
       }
 
-      public var views: [View] {
+      public var views: Int {
         get {
-          return (resultMap["views"] as! [ResultMap]).map { (value: ResultMap) -> View in View(unsafeResultMap: value) }
+          return resultMap["views"]! as! Int
         }
         set {
-          resultMap.updateValue(newValue.map { (value: View) -> ResultMap in value.resultMap }, forKey: "views")
+          resultMap.updateValue(newValue, forKey: "views")
         }
       }
 
@@ -414,64 +344,6 @@ public final class GetPostQuery: GraphQLQuery {
         }
         set {
           resultMap.updateValue(newValue, forKey: "image")
-        }
-      }
-
-      public var reports: [String] {
-        get {
-          return resultMap["reports"]! as! [String]
-        }
-        set {
-          resultMap.updateValue(newValue, forKey: "reports")
-        }
-      }
-
-      public struct View: GraphQLSelectionSet {
-        public static let possibleTypes: [String] = ["View"]
-
-        public static var selections: [GraphQLSelection] {
-          return [
-            GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
-            GraphQLField("userId", type: .nonNull(.scalar(String.self))),
-            GraphQLField("time", type: .nonNull(.scalar(Double.self))),
-          ]
-        }
-
-        public private(set) var resultMap: ResultMap
-
-        public init(unsafeResultMap: ResultMap) {
-          self.resultMap = unsafeResultMap
-        }
-
-        public init(userId: String, time: Double) {
-          self.init(unsafeResultMap: ["__typename": "View", "userId": userId, "time": time])
-        }
-
-        public var __typename: String {
-          get {
-            return resultMap["__typename"]! as! String
-          }
-          set {
-            resultMap.updateValue(newValue, forKey: "__typename")
-          }
-        }
-
-        public var userId: String {
-          get {
-            return resultMap["userId"]! as! String
-          }
-          set {
-            resultMap.updateValue(newValue, forKey: "userId")
-          }
-        }
-
-        public var time: Double {
-          get {
-            return resultMap["time"]! as! Double
-          }
-          set {
-            resultMap.updateValue(newValue, forKey: "time")
-          }
         }
       }
     }
@@ -517,6 +389,169 @@ public final class GetUserQuery: GraphQLQuery {
       }
       set {
         resultMap.updateValue(newValue, forKey: "createUser")
+      }
+    }
+  }
+}
+
+public final class ReportMutation: GraphQLMutation {
+  /// The raw GraphQL definition of this operation.
+  public let operationDefinition: String =
+    """
+    mutation Report($userID: String!, $postID: String!) {
+      report(input: {userID: $userID, postID: $postID})
+    }
+    """
+
+  public let operationName: String = "Report"
+
+  public var userID: String
+  public var postID: String
+
+  public init(userID: String, postID: String) {
+    self.userID = userID
+    self.postID = postID
+  }
+
+  public var variables: GraphQLMap? {
+    return ["userID": userID, "postID": postID]
+  }
+
+  public struct Data: GraphQLSelectionSet {
+    public static let possibleTypes: [String] = ["Mutation"]
+
+    public static var selections: [GraphQLSelection] {
+      return [
+        GraphQLField("report", arguments: ["input": ["userID": GraphQLVariable("userID"), "postID": GraphQLVariable("postID")]], type: .nonNull(.scalar(Bool.self))),
+      ]
+    }
+
+    public private(set) var resultMap: ResultMap
+
+    public init(unsafeResultMap: ResultMap) {
+      self.resultMap = unsafeResultMap
+    }
+
+    public init(report: Bool) {
+      self.init(unsafeResultMap: ["__typename": "Mutation", "report": report])
+    }
+
+    public var report: Bool {
+      get {
+        return resultMap["report"]! as! Bool
+      }
+      set {
+        resultMap.updateValue(newValue, forKey: "report")
+      }
+    }
+  }
+}
+
+public final class ShareMutation: GraphQLMutation {
+  /// The raw GraphQL definition of this operation.
+  public let operationDefinition: String =
+    """
+    mutation Share($userID: String!, $postID: String!) {
+      share(input: {userID: $userID, postID: $postID})
+    }
+    """
+
+  public let operationName: String = "Share"
+
+  public var userID: String
+  public var postID: String
+
+  public init(userID: String, postID: String) {
+    self.userID = userID
+    self.postID = postID
+  }
+
+  public var variables: GraphQLMap? {
+    return ["userID": userID, "postID": postID]
+  }
+
+  public struct Data: GraphQLSelectionSet {
+    public static let possibleTypes: [String] = ["Mutation"]
+
+    public static var selections: [GraphQLSelection] {
+      return [
+        GraphQLField("share", arguments: ["input": ["userID": GraphQLVariable("userID"), "postID": GraphQLVariable("postID")]], type: .nonNull(.scalar(Bool.self))),
+      ]
+    }
+
+    public private(set) var resultMap: ResultMap
+
+    public init(unsafeResultMap: ResultMap) {
+      self.resultMap = unsafeResultMap
+    }
+
+    public init(share: Bool) {
+      self.init(unsafeResultMap: ["__typename": "Mutation", "share": share])
+    }
+
+    public var share: Bool {
+      get {
+        return resultMap["share"]! as! Bool
+      }
+      set {
+        resultMap.updateValue(newValue, forKey: "share")
+      }
+    }
+  }
+}
+
+public final class ViewMutation: GraphQLMutation {
+  /// The raw GraphQL definition of this operation.
+  public let operationDefinition: String =
+    """
+    mutation View($userID: String!, $postID: String!, $time: Float!, $device: String!) {
+      view(input: {postID: $postID, userId: $userID, time: $time, deviceDetails: $device})
+    }
+    """
+
+  public let operationName: String = "View"
+
+  public var userID: String
+  public var postID: String
+  public var time: Double
+  public var device: String
+
+  public init(userID: String, postID: String, time: Double, device: String) {
+    self.userID = userID
+    self.postID = postID
+    self.time = time
+    self.device = device
+  }
+
+  public var variables: GraphQLMap? {
+    return ["userID": userID, "postID": postID, "time": time, "device": device]
+  }
+
+  public struct Data: GraphQLSelectionSet {
+    public static let possibleTypes: [String] = ["Mutation"]
+
+    public static var selections: [GraphQLSelection] {
+      return [
+        GraphQLField("view", arguments: ["input": ["postID": GraphQLVariable("postID"), "userId": GraphQLVariable("userID"), "time": GraphQLVariable("time"), "deviceDetails": GraphQLVariable("device")]], type: .nonNull(.scalar(Bool.self))),
+      ]
+    }
+
+    public private(set) var resultMap: ResultMap
+
+    public init(unsafeResultMap: ResultMap) {
+      self.resultMap = unsafeResultMap
+    }
+
+    public init(view: Bool) {
+      self.init(unsafeResultMap: ["__typename": "Mutation", "view": view])
+    }
+
+    public var view: Bool {
+      get {
+        return resultMap["view"]! as! Bool
+      }
+      set {
+        resultMap.updateValue(newValue, forKey: "view")
       }
     }
   }

@@ -21,13 +21,18 @@ struct ContentView: View {
     @State var blurFG = CGFloat(0)
     @State var mode = "NORMAL"
     
+    @State var timeAddition = UInt64(0)
+    @State var startTime = DispatchTime.now()
+    @State var viewError = ""
+    @State var viewAlertShow = false
+    
     //DispatchGroup for async operations
     let group = DispatchGroup()
     
     var body: some View {
         
-            NavigationView {
-                GeometryReader { metrics in
+        NavigationView {
+            GeometryReader { metrics in
                 ZStack(){
                     Color.black
                     
@@ -71,7 +76,9 @@ struct ContentView: View {
                                             if postReady {
                                                 self.scaleFG = 1.1
                                                 self.blurFG = 10
+                                                reportView()
                                                 self.post1 = self.post2
+                                                startTimer()
                                                 self.firstOffset = CGSize(width: 0, height: -15)
                                                 withAnimation(Animation.easeInOut(duration: 0.2)){
                                                     self.blurFG = 0
@@ -95,6 +102,15 @@ struct ContentView: View {
                                     })
                 }
             }
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
+                pauseTimer()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+                resumeTimer()
+            }
+            .alert(isPresented: $viewAlertShow, content: {
+                Alert(title: Text("Error"), message: Text(viewError))
+            })
             .onAppear(perform: {
                 saveUserId()
                 //group notify will run when enter() and leave() are balanced, waits for userId to be downloaded
@@ -128,6 +144,65 @@ struct ContentView: View {
         }
     }
     
+    func machineName() -> String {
+      var systemInfo = utsname()
+      uname(&systemInfo)
+      let machineMirror = Mirror(reflecting: systemInfo.machine)
+      return machineMirror.children.reduce("") { identifier, element in
+        guard let value = element.value as? Int8, value != 0 else { return identifier }
+        return identifier + String(UnicodeScalar(UInt8(value)))
+      }
+    }
+    
+    func reportView(){
+        if (mode == "NORMAL"){
+            if (userId != nil && post1.ID != nil){
+                let objectID = post1.ID!.components(separatedBy: "\"")
+                Network.shared.apollo
+                    .perform(mutation: ViewMutation(userID: userId!, postID: objectID[1], time: stopTimer(), device: "Apple " + machineName())) { result in
+                        switch result {
+                        case .success(let graphQLResult):
+                            if let viewConnection = graphQLResult.data?.view {
+                                if !viewConnection {
+                                    self.viewError = "Bad view report return!"
+                                }
+                            }
+                            if let errors = graphQLResult.errors {
+                                self.viewError = errors.map { $0.localizedDescription }.joined(separator: "\n")
+                            }
+                        case .failure(let error):
+                            self.viewError = error.localizedDescription
+                        }
+                        if (viewError != ""){
+                            self.viewAlertShow = true
+                        }
+                    }
+            } else {
+                self.viewError = "No userID or postID!"
+                self.viewAlertShow = true
+            }
+        }
+    }
+    
+    func startTimer(){
+        self.timeAddition = 0
+        self.startTime = DispatchTime.now()
+    }
+    
+    //returns elapsed time in seconds example 2.345123
+    func stopTimer() -> Double {
+        let elapsedTime = DispatchTime.now().uptimeNanoseconds - startTime.uptimeNanoseconds + timeAddition
+        return Double(elapsedTime) / 1_000_000_000
+    }
+    
+    func resumeTimer(){
+        self.startTime = DispatchTime.now()
+    }
+    
+    func pauseTimer(){
+        self.timeAddition += DispatchTime.now().uptimeNanoseconds - startTime.uptimeNanoseconds
+    }
+    
     func getCGSizeLength(vector: CGSize) -> CGFloat {
         return sqrt(pow(vector.height, 2) + pow(vector.width, 2))
     }
@@ -146,9 +221,24 @@ struct ContentView: View {
                     case .success(let graphQLResult):
                         if let postConnection = graphQLResult.data?.post {
                             if loading {
-                                self.post1 = Post(text: postConnection.text, image: postConnection.image)
+                                self.post1 = Post(
+                                    ID: postConnection.id,
+                                    text: postConnection.text,
+                                    image: postConnection.image,
+                                    shares: postConnection.shares,
+                                    views: postConnection.views,
+                                    creationTime: postConnection.creationTime
+                                )
+                                startTimer()
                             } else {
-                                self.post2 = Post(text: postConnection.text, image: postConnection.image)
+                                self.post2 = Post(
+                                    ID: postConnection.id,
+                                    text: postConnection.text,
+                                    image: postConnection.image,
+                                    shares: postConnection.shares,
+                                    views: postConnection.views,
+                                    creationTime: postConnection.creationTime
+                                )
                                 self.post1.nextImage = postConnection.image
                                 withAnimation(Animation.easeInOut(duration: 0.4).delay(0.4)){
                                     self.opacityBG = 1

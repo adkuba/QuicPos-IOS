@@ -8,8 +8,12 @@
 import SwiftUI
 
 struct Post {
+    var ID: String?
     var text: String
     var image: String? //? optional field
+    var shares: Int?
+    var views: Int?
+    var creationTime: String?
     var loading: Bool?
     var nextImage: String?
 }
@@ -20,6 +24,7 @@ struct PostView: View {
     var metrics: CGSize
     var selectedMode: String
     
+    @State var userId = UserDefaults.standard.string(forKey: "userId")
     @State @ObservedObject var imageLoader = ImageLoader(urlString: "")
     @State @ObservedObject var nextImageLoader = ImageLoader(urlString: "")
     @State var image:UIImage = UIImage()
@@ -27,13 +32,19 @@ struct PostView: View {
     @State var displayImage = false
     @State var timer = Timer.publish(every: 0.6, on: .main, in: .common).autoconnect()
     @State var blurValue = CGFloat(0)
+    
+    @State var shareErrorMessage = ""
+    @State var shareAlertShow = false
+    @State var reportConfirmationAlertShow = false
+    @State var reportMessage = ""
+    @State var reportAlertShow = false
 
     var body: some View {
         ZStack{
-            Rectangle().frame(minWidth: metrics.width * 0.9, minHeight: 100, alignment: .center)
+            Rectangle()
                 .foregroundColor(
                     selectedMode == "NORMAL" ? Color(red: 27 / 255, green: 28 / 255, blue: 30 / 255) : Color.black)
-                .animation(.easeIn)
+                .frame(minWidth: metrics.width * 0.9, minHeight: 100, alignment: .center)
                 .cornerRadius(10)
             VStack{
                 Text(post.text).foregroundColor(Color.white)
@@ -45,37 +56,59 @@ struct PostView: View {
                     Image(uiImage: image)
                         .resizable()
                         .scaledToFill()
-                        .frame(width: metrics.width * 0.85, height: 150)
+                        .frame(width: metrics.width * 0.80, height: 150)
                         .onReceive(imageLoader.didChange) { data in
                             self.image = UIImage(data: data) ?? UIImage()
                         }
                         .clipped()
+                        .cornerRadius(5)
+                        .padding()
                 }
                 
-                Text("20.10.2020 11:45")
+                Text((post.creationTime ?? "20.10.2020 11:45").prefix(16))
                     .font(.system(size: 15))
                     .foregroundColor(.gray)
                     .padding()
                     .frame(width: metrics.width * 0.85, height: 17, alignment: .leading)
                 
-                Text("0 views 0 reports")
+                Text(String(post.views ?? 0) + " views " + String(post.shares ?? 0) + " shares")
                     .font(.system(size: 15))
                     .foregroundColor(.gray)
                     .padding()
                     .frame(width: metrics.width * 0.85, height: 17, alignment: .leading)
                 
                 HStack{
-                    Button(action: {}, label: {
+                    Button(action: {
+                        //share
+                        reportShare()
+                    }, label: {
                         Image(systemName: "square.and.arrow.up")
                             .font(.system(size: 22))
                     })
                     .offset(x: 0, y: -4)
+                    .alert(isPresented: $shareAlertShow, content: {
+                        Alert(title: Text("Error"), message: Text(shareErrorMessage))
+                    })
                     
-                    Button(action: {}, label: {
+                    Button(action: {
+                        self.reportConfirmationAlertShow = true
+                    }, label: {
                         Image(systemName: "exclamationmark.bubble")
                             .font(.system(size: 22))
                     })
                     .offset(x: 20, y: 0)
+                    .alert(isPresented: $reportConfirmationAlertShow, content: {
+                        if (reportAlertShow){
+                            return Alert(title: Text("Report"), message: Text(reportMessage))
+                        } else {
+                            return Alert(
+                                title: Text("Are you sure?"),
+                                message: Text("Do you really want to report this post?"),
+                                primaryButton: .destructive(Text("Yes"), action: reportPost),
+                                secondaryButton: .cancel(Text("No"))
+                            )
+                        }
+                    })
                 }
                 .padding()
                 .frame(width: metrics.width * 0.85, height: 50, alignment: .leading)
@@ -126,6 +159,64 @@ struct PostView: View {
                 self.timer.upstream.connect().cancel()
             }
         })
+    }
+    
+    func reportPost(){
+        if (post.ID != nil){
+            let objectID = post.ID!.components(separatedBy: "\"")
+            Network.shared.apollo
+                .perform(mutation: ReportMutation(userID: userId ?? "", postID: objectID[1])) { result in
+                    switch result {
+                    case .success(let graphQLResult):
+                        if let reportConnection = graphQLResult.data?.report {
+                            if (reportConnection) {
+                                self.reportMessage = "Thank you! Our team will review this post."
+                            } else {
+                                self.reportMessage = "Bad report return! Contact us to resolve the issue."
+                            }
+                        }
+                        if let errors = graphQLResult.errors {
+                            self.reportMessage = errors.map { $0.localizedDescription }.joined(separator: "\n")
+                        }
+                    case .failure(let error):
+                        self.reportMessage = error.localizedDescription
+                    }
+                    self.reportAlertShow = true
+                    self.reportConfirmationAlertShow = true
+                }
+        }
+    }
+    
+    func reportShare(){
+        var errorMessage = ""
+        if (post.ID != nil){
+            let objectID = post.ID!.components(separatedBy: "\"")
+            let url = "https://www.quicpos.com/post/" + objectID[1]
+            Network.shared.apollo
+                .perform(mutation: ShareMutation(userID: userId ?? "", postID: objectID[1])) { result in
+                    switch result {
+                    case .success(let graphQLResult):
+                        if let shareConnection = graphQLResult.data?.share {
+                            if (shareConnection) {
+                                let data = URL(string: url)!
+                                let av = UIActivityViewController(activityItems: [data], applicationActivities: nil)
+                                UIApplication.shared.windows.first?.rootViewController?.present(av, animated: true, completion: nil)
+                            } else {
+                                errorMessage = "Bad share report return! Contact us to resolve the issue."
+                            }
+                        }
+                        if let errors = graphQLResult.errors {
+                            errorMessage = errors.map { $0.localizedDescription }.joined(separator: "\n")
+                        }
+                    case .failure(let error):
+                        errorMessage = error.localizedDescription
+                    }
+                    if (errorMessage != ""){
+                        self.shareErrorMessage = errorMessage
+                        self.shareAlertShow = true
+                    }
+                }
+        }
     }
     
     func initNewImage(image: String?){

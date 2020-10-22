@@ -5,13 +5,9 @@ query GetPost($userId: String!, $normalMode: Boolean!) {
     text
     userId
     shares
-    views{
-      userId
-      time
-    }
+    views
     creationTime
     initialReview
     image
-    reports
   }
 }

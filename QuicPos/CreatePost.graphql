@@ -10,13 +10,9 @@ mutation CreatePost($text: String!, $userId: String!, $image: String!) {
     text
     userId
     shares
-    views {
-      userId
-      time
-    }
+    views
     creationTime
     initialReview
     image
-    reports
   }
 }

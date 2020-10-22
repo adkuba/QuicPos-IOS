@@ -15,6 +15,7 @@ struct Creator: View {
     @State var userId = UserDefaults.standard.string(forKey: "userId")
     @State var displayAlert = false
     @State var alertMessage = ""
+    @State var sending = false
     
     var body: some View {
         GeometryReader { metrics in
@@ -62,6 +63,7 @@ struct Creator: View {
                     .background(Color.black)
                 }
             }
+            .blur(radius: sending ? 5 : 0)
             //$ to jest binding
             .alert(isPresented: $displayAlert, content: {
                 Alert(
@@ -73,7 +75,7 @@ struct Creator: View {
         .navigationBarTitle(Text(""), displayMode: .inline)
         .navigationBarItems(
             leading:
-                Text("Create").offset(x: -10, y: 0),
+                Text("Create"),
             trailing:
                 Button(action: {
                     createPost()
@@ -87,7 +89,7 @@ struct Creator: View {
     }
     
     func convertImageToBase64String (img: UIImage) -> String {
-        let base64 = img.jpegData(compressionQuality: 1)?.base64EncodedString()
+        let base64 = img.jpegData(compressionQuality: 0.5)?.base64EncodedString()
         if base64 == nil {
             return ""
         } else {
@@ -96,12 +98,19 @@ struct Creator: View {
     }
     
     func createPost(){
+        self.sending = true
         Network.shared.apollo
             .perform(mutation: CreatePostMutation(text: newText, userId: userId!, image: convertImageToBase64String(img: image))) { result in
                 switch result {
                 case .success(let graphQLResult):
                     if let postConnection = graphQLResult.data?.createPost {
-                        self.alertMessage = postConnection.id
+                        self.newText = ""
+                        self.image = UIImage()
+                        let objectID = postConnection.id.components(separatedBy: "\"")
+                        let url = "https://www.quicpos.com/post/" + objectID[1]
+                        let data = URL(string: url)!
+                        let av = UIActivityViewController(activityItems: [data], applicationActivities: nil)
+                        UIApplication.shared.windows.first?.rootViewController?.present(av, animated: true, completion: nil)
                     }
                     if let errors = graphQLResult.errors {
                         self.alertMessage = errors
@@ -111,7 +120,10 @@ struct Creator: View {
                 case .failure(let error):
                     self.alertMessage = error.localizedDescription
                 }
-                self.displayAlert = true
+                self.sending = false
+                if alertMessage != "" {
+                    self.displayAlert = true
+                }
             }
     }
 }
