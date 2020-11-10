@@ -10,7 +10,7 @@ import SwiftUI
 struct ContentView: View {
     
     //state allows modification during self invoke
-    @State var userId = UserDefaults.standard.string(forKey: "userId")
+    @State var userId = UserDefaults.standard.integer(forKey: "userId")
     @State var post1 = Post(text: "Loading...", loading: true)
     @State var post2 = Post(text: "")
     @State var firstOffset = CGSize(width: 0, height: -15)
@@ -35,21 +35,6 @@ struct ContentView: View {
             GeometryReader { metrics in
                 ZStack(){
                     Color.black
-                    
-                    //add button
-                    NavigationLink(
-                        destination: Creator(),
-                        label: {
-                            HStack{
-                                Image(systemName: "plus")
-                                    .font(.system(size: 20, weight: .semibold))
-                                
-                                Text("Create")
-                                    .fontWeight(.semibold)
-                            }
-                        })
-                        .offset(x: 0, y: metrics.size.height/2 - 30)
-                    
                     
                     //background post
                     PostView(post: post2, metrics: metrics.size, selectedMode: mode)
@@ -116,15 +101,24 @@ struct ContentView: View {
                 //group notify will run when enter() and leave() are balanced, waits for userId to be downloaded
                 group.notify(queue: .main) {
                     getPost()
-                    print(userId ?? "no user ID")
+                    print(userId)
                 }
             })
             .preferredColorScheme(.dark)
-            .navigationBarTitle(Text(""), displayMode: .inline)
+            .navigationBarTitle(Text("QuicPos"), displayMode: .inline)
             .navigationBarItems(
                 leading:
-                    Text("QuicPos")
-                        .fontWeight(.semibold),
+                    NavigationLink(
+                        destination: Creator(),
+                        label: {
+                            HStack{
+                                Image(systemName: "plus")
+                                    .font(.system(size: 20, weight: .semibold))
+                                
+                                Text("Create")
+                                    .fontWeight(.semibold)
+                            }
+                        }),
                 trailing:
                     Button(action: {
                         if (self.mode == "NORMAL"){
@@ -154,12 +148,32 @@ struct ContentView: View {
       }
     }
     
+    func getDevice() -> Int {
+        let deviceString = machineName()
+        var device = 100000
+        if (deviceString.contains("iPhone")){
+            device += 1000
+        } else if (deviceString.contains("iPad")){
+            device += 2000
+        }
+        var multiplication = 1
+        for ch in deviceString {
+            let value = Int(String(ch)) ?? 0
+            if value != 0 {
+                device += value * multiplication
+                multiplication *= 10
+            }
+        }
+        return device
+    }
+    
     func reportView(){
         if (mode == "NORMAL"){
-            if (userId != nil && post1.ID != nil){
+            if (userId != 0 && post1.ID != nil){
                 let objectID = post1.ID!.components(separatedBy: "\"")
+                
                 Network.shared.apollo
-                    .perform(mutation: ViewMutation(userID: userId!, postID: objectID[1], time: stopTimer(), device: "Apple " + machineName())) { result in
+                    .perform(mutation: ViewMutation(userID: userId, postID: objectID[1], time: stopTimer(), device: getDevice())) { result in
                         switch result {
                         case .success(let graphQLResult):
                             if let viewConnection = graphQLResult.data?.view {
@@ -216,7 +230,7 @@ struct ContentView: View {
         saveUserId()
         group.notify(queue: .main) {
             Network.shared.apollo
-                .fetch(query: GetPostQuery(userId: userId!, normalMode: normalMode), cachePolicy: .fetchIgnoringCacheCompletely) { result in
+                .fetch(query: GetPostQuery(userID: userId, normalMode: normalMode), cachePolicy: .fetchIgnoringCacheCompletely) { result in
                     switch result {
                     case .success(let graphQLResult):
                         if let postConnection = graphQLResult.data?.post {
@@ -274,7 +288,7 @@ struct ContentView: View {
     }
     
     func saveUserId(){
-        if self.userId == nil{
+        if self.userId == 0{
             group.enter()
             //send this code to async
             DispatchQueue.main.async {

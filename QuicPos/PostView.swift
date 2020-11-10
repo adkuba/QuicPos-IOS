@@ -24,7 +24,7 @@ struct PostView: View {
     var metrics: CGSize
     var selectedMode: String
     
-    @State var userId = UserDefaults.standard.string(forKey: "userId")
+    @State var userId = UserDefaults.standard.integer(forKey: "userId")
     @State @ObservedObject var imageLoader = ImageLoader(urlString: "")
     @State @ObservedObject var nextImageLoader = ImageLoader(urlString: "")
     @State var image:UIImage = UIImage()
@@ -44,38 +44,40 @@ struct PostView: View {
             Rectangle()
                 .foregroundColor(
                     selectedMode == "NORMAL" ? Color(red: 27 / 255, green: 28 / 255, blue: 30 / 255) : Color.black)
-                .frame(minWidth: metrics.width * 0.9, minHeight: 100, alignment: .center)
+                .frame(minWidth: metrics.width * 0.95, minHeight: 100, alignment: .center)
                 .cornerRadius(10)
             VStack{
-                Text(post.text).foregroundColor(Color.white)
+                Text(post.text)
+                    .foregroundColor(Color.white)
+                    .lineLimit(7)
+                    .frame(width: metrics.width * 0.9, alignment: .leading)
                     .padding()
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(width: metrics.width * 0.85, height: 70, alignment: .leading)
+                
                 
                 if displayImage {
                     Image(uiImage: image)
                         .resizable()
                         .scaledToFill()
-                        .frame(width: metrics.width * 0.80, height: 150)
+                        .frame(width: metrics.width * 0.9, height: 200)
                         .onReceive(imageLoader.didChange) { data in
                             self.image = UIImage(data: data) ?? UIImage()
                         }
                         .clipped()
                         .cornerRadius(5)
-                        .padding()
+                        .padding(.vertical)
                 }
                 
                 Text((post.creationTime ?? "20.10.2020 11:45").prefix(16))
                     .font(.system(size: 15))
                     .foregroundColor(.gray)
-                    .padding()
-                    .frame(width: metrics.width * 0.85, height: 17, alignment: .leading)
+                    .padding(.vertical)
+                    .frame(width: metrics.width * 0.9, height: 17, alignment: .leading)
                 
                 Text(String(post.views ?? 0) + " views " + String(post.shares ?? 0) + " shares")
                     .font(.system(size: 15))
                     .foregroundColor(.gray)
-                    .padding()
-                    .frame(width: metrics.width * 0.85, height: 17, alignment: .leading)
+                    .padding(.vertical)
+                    .frame(width: metrics.width * 0.9, height: 17, alignment: .leading)
                 
                 HStack{
                     Button(action: {
@@ -110,8 +112,8 @@ struct PostView: View {
                         }
                     })
                 }
-                .padding()
-                .frame(width: metrics.width * 0.85, height: 50, alignment: .leading)
+                .frame(width: metrics.width * 0.9, height: 50, alignment: .leading)
+                .padding(.vertical)
             }
         }
         .fixedSize()
@@ -165,7 +167,7 @@ struct PostView: View {
         if (post.ID != nil){
             let objectID = post.ID!.components(separatedBy: "\"")
             Network.shared.apollo
-                .perform(mutation: ReportMutation(userID: userId ?? "", postID: objectID[1])) { result in
+                .perform(mutation: ReportMutation(userID: userId, postID: objectID[1])) { result in
                     switch result {
                     case .success(let graphQLResult):
                         if let reportConnection = graphQLResult.data?.report {
@@ -193,7 +195,7 @@ struct PostView: View {
             let objectID = post.ID!.components(separatedBy: "\"")
             let url = "https://www.quicpos.com/post/" + objectID[1]
             Network.shared.apollo
-                .perform(mutation: ShareMutation(userID: userId ?? "", postID: objectID[1])) { result in
+                .perform(mutation: ShareMutation(userID: userId, postID: objectID[1])) { result in
                     switch result {
                     case .success(let graphQLResult):
                         if let shareConnection = graphQLResult.data?.share {

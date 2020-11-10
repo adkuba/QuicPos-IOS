@@ -12,7 +12,7 @@ struct Creator: View {
     @State var newText = ""
     @State var isShowPhotoLibrary = false
     @State var image = UIImage()
-    @State var userId = UserDefaults.standard.string(forKey: "userId")
+    @State var userId = UserDefaults.standard.integer(forKey: "userId")
     @State var displayAlert = false
     @State var alertMessage = ""
     @State var sending = false
@@ -42,7 +42,7 @@ struct Creator: View {
                         Image(uiImage: self.image)
                             .resizable()
                             .scaledToFill()
-                            .frame(width: metrics.size.width * 0.9, height: metrics.size.width * 0.5)
+                            .frame(width: metrics.size.width * 0.9, height: metrics.size.width * 0.55)
                             .clipped()
                             .cornerRadius(10)
                             .padding()
@@ -72,15 +72,14 @@ struct Creator: View {
                     dismissButton: .default(Text("OK")))
             })
         }
-        .navigationBarTitle(Text(""), displayMode: .inline)
+        .navigationBarTitle("Create", displayMode: .inline)
         .navigationBarItems(
-            leading:
-                Text("Create"),
             trailing:
                 Button(action: {
                     createPost()
                 }, label: {
-                    Text("Send")
+                    Image(systemName: "paperplane.circle")
+                        .font(.system(size: 23))
                 }))
         .sheet(isPresented: $isShowPhotoLibrary) {
             ImagePicker(sourceType: .photoLibrary, selectedImage: self.$image)
@@ -100,7 +99,7 @@ struct Creator: View {
     func createPost(){
         self.sending = true
         Network.shared.apollo
-            .perform(mutation: CreatePostMutation(text: newText, userId: userId!, image: convertImageToBase64String(img: image))) { result in
+            .perform(mutation: CreatePostMutation(text: newText, userId: userId, image: convertImageToBase64String(img: image))) { result in
                 switch result {
                 case .success(let graphQLResult):
                     if let postConnection = graphQLResult.data?.createPost {
