@@ -10,7 +10,7 @@ import SwiftUI
 struct Post {
     var ID: String?
     var text: String
-    var image: String? //? optional field
+    var image: String?
     var shares: Int?
     var views: Int?
     var creationTime: String?
@@ -40,25 +40,20 @@ struct PostView: View {
     @State var reportAlertShow = false
 
     var body: some View {
-        ZStack{
-            Rectangle()
-                .foregroundColor(
-                    selectedMode == "NORMAL" ? Color(red: 27 / 255, green: 28 / 255, blue: 30 / 255) : Color.black)
-                .frame(minWidth: metrics.width * 0.95, minHeight: 100, alignment: .center)
-                .cornerRadius(10)
+        ScrollView{
             VStack{
+                //text
                 Text(post.text)
-                    .foregroundColor(Color.white)
-                    .lineLimit(7)
+                    .lineLimit(nil)
                     .frame(width: metrics.width * 0.9, alignment: .leading)
                     .padding()
-                
-                
+                    
+                //image
                 if displayImage {
                     Image(uiImage: image)
                         .resizable()
                         .scaledToFill()
-                        .frame(width: metrics.width * 0.9, height: 200)
+                        .frame(width: metrics.width * 0.9)
                         .onReceive(imageLoader.didChange) { data in
                             self.image = UIImage(data: data) ?? UIImage()
                         }
@@ -67,36 +62,48 @@ struct PostView: View {
                         .padding(.vertical)
                 }
                 
+                //stats
                 Text((post.creationTime ?? "20.10.2020 11:45").prefix(16))
                     .font(.system(size: 15))
                     .foregroundColor(.gray)
                     .padding(.vertical)
                     .frame(width: metrics.width * 0.9, height: 17, alignment: .leading)
-                
+        
                 Text(String(post.views ?? 0) + " views " + String(post.shares ?? 0) + " shares")
                     .font(.system(size: 15))
                     .foregroundColor(.gray)
                     .padding(.vertical)
                     .frame(width: metrics.width * 0.9, height: 17, alignment: .leading)
-                
+                    
+                //action section
                 HStack{
                     Button(action: {
                         //share
                         reportShare()
                     }, label: {
-                        Image(systemName: "square.and.arrow.up")
-                            .font(.system(size: 22))
+                        HStack{
+                            Image(systemName: "square.and.arrow.up")
+                                .font(.system(size: 22))
+                            Text("Share")
+                                .fontWeight(.semibold)
+                                .offset(x:0, y:4)
+                        }
                     })
                     .offset(x: 0, y: -4)
                     .alert(isPresented: $shareAlertShow, content: {
                         Alert(title: Text("Error"), message: Text(shareErrorMessage))
                     })
-                    
+                        
                     Button(action: {
                         self.reportConfirmationAlertShow = true
+                        self.reportAlertShow = false
                     }, label: {
-                        Image(systemName: "exclamationmark.bubble")
-                            .font(.system(size: 22))
+                        HStack{
+                            Image(systemName: "exclamationmark.bubble")
+                                .font(.system(size: 22))
+                            Text("Report")
+                                .fontWeight(.semibold)
+                        }
                     })
                     .offset(x: 20, y: 0)
                     .alert(isPresented: $reportConfirmationAlertShow, content: {
@@ -112,11 +119,10 @@ struct PostView: View {
                         }
                     })
                 }
-                .frame(width: metrics.width * 0.9, height: 50, alignment: .leading)
+                .frame(width: metrics.width * 0.9, height: 40, alignment: .leading)
                 .padding(.vertical)
             }
         }
-        .fixedSize()
         .onChange(of: post.nextImage, perform: { value in
             if let im = value, im != ""{
                 nextImageLoader = ImageLoader(urlString: "https://storage.googleapis.com/quicpos-images/" + im)

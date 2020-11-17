@@ -11,113 +11,84 @@ struct ContentView: View {
     
     //state allows modification during self invoke
     @State var userId = UserDefaults.standard.integer(forKey: "userId")
-    @State var post1 = Post(text: "Loading...", loading: true)
-    @State var post2 = Post(text: "")
-    @State var firstOffset = CGSize(width: 0, height: -15)
-    @State var opacityBG = 1.0
-    @State var postReady = false
-    @State var loading = true
-    @State var scaleFG = CGFloat(1)
-    @State var blurFG = CGFloat(0)
+    @State var posts = [Post(text: "Loading...", loading: true), Post(text: "Loading...", loading: true)]
     @State var mode = "NORMAL"
     
     @State var timeAddition = UInt64(0)
     @State var startTime = DispatchTime.now()
     @State var viewError = ""
     @State var viewAlertShow = false
+    @State var index = 0
     
     //DispatchGroup for async operations
     let group = DispatchGroup()
     
     var body: some View {
-        
         NavigationView {
             GeometryReader { metrics in
-                ZStack(){
-                    Color.black
-                    
-                    //background post
-                    PostView(post: post2, metrics: metrics.size, selectedMode: mode)
-                        .scaleEffect(1.1)
-                        .brightness(-0.08)
-                        .blur(radius: 10)
-                        .opacity(opacityBG)
-                        .offset(x: 0, y: -10)
-                    
-
-                    //foreground post
-                    PostView(post: post1, metrics: metrics.size, selectedMode: mode)
-                        .scaleEffect(scaleFG)
-                        .blur(radius: blurFG)
-                        .offset(firstOffset)
-                        .gesture(DragGesture()
-                                    .onChanged { gesture in
-                                        self.firstOffset = CGSize(
-                                            width: gesture.translation.width,
-                                            height: gesture.translation.height - 15)
-                                    }
-                                    .onEnded { _ in
-                                        if getCGSizeLength(vector: self.firstOffset) > 100 {
-                                            if postReady {
-                                                self.scaleFG = 1.1
-                                                self.blurFG = 10
-                                                reportView()
-                                                self.post1 = self.post2
-                                                startTimer()
-                                                self.firstOffset = CGSize(width: 0, height: -15)
-                                                withAnimation(Animation.easeInOut(duration: 0.2)){
-                                                    self.blurFG = 0
-                                                    self.scaleFG = 1
-                                                }
-                                                self.postReady = false
-                                                self.opacityBG = 0
-                                                getPost()
-                                            } else {
-                                                self.post1 = Post(text: "Loading...", loading: true)
-                                                self.loading = true
-                                                withAnimation(Animation.linear(duration: 0.1)){
-                                                    self.firstOffset = CGSize(width: 0, height: -15)
-                                                }
-                                            }
-                                        } else {
-                                            withAnimation(Animation.linear(duration: 0.1)){
-                                                self.firstOffset = CGSize(width: 0, height: -15)
-                                            }
-                                        }
-                                    })
+                VStack{
+                    //Post
+                    PostView(post: posts[index], metrics: metrics.size, selectedMode: mode)
                 }
             }
+            .toolbar(content: {
+                ToolbarItemGroup(placement: .bottomBar){
+                    //back
+                    Button(action: {
+                        prev()
+                    }, label: {
+                        Image(systemName: "chevron.left")
+                    })
+                    Button(action: {
+                        prev()
+                    }, label: {
+                        Text("Prev")
+                    })
+                    
+                }
+                ToolbarItem(placement: .bottomBar){
+                    Spacer()
+                        //alert from view!
+                        .alert(isPresented: $viewAlertShow, content: {
+                            Alert(title: Text("Error"), message: Text(viewError))
+                        })
+                }
+                ToolbarItemGroup(placement: .bottomBar){
+                    //next
+                    Button(action: {
+                        next()
+                    }, label: {
+                        Text("Next")
+                    })
+                    Button(action: {
+                        next()
+                    }, label: {
+                        Image(systemName: "chevron.right")
+                    })
+                }
+            })
             .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
                 pauseTimer()
             }
             .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
                 resumeTimer()
             }
-            .alert(isPresented: $viewAlertShow, content: {
-                Alert(title: Text("Error"), message: Text(viewError))
-            })
             .onAppear(perform: {
                 saveUserId()
                 //group notify will run when enter() and leave() are balanced, waits for userId to be downloaded
                 group.notify(queue: .main) {
                     getPost()
-                    print(userId)
+                    getPost()
                 }
             })
-            .preferredColorScheme(.dark)
             .navigationBarTitle(Text("QuicPos"), displayMode: .inline)
             .navigationBarItems(
                 leading:
                     NavigationLink(
                         destination: Creator(),
                         label: {
-                            HStack{
-                                Image(systemName: "plus")
-                                    .font(.system(size: 20, weight: .semibold))
-                                
-                                Text("Create")
-                                    .fontWeight(.semibold)
-                            }
+                            Image(systemName: "plus")
+                                .font(.system(size: 20, weight: .semibold))
                         }),
                 trailing:
                     Button(action: {
@@ -138,6 +109,34 @@ struct ContentView: View {
         }
     }
     
+    func prev() {
+        if index>0 {
+            if index == posts.count-2{
+                pauseTimer()
+            }
+            self.index -= 1
+        }
+    }
+    
+    func next() {
+        if index != posts.count-2 {
+            self.index += 1
+            if index == posts.count-2{
+                resumeTimer()
+            }
+        }
+        else if posts[posts.count-2].ID != nil {
+            reportView()
+            posts.append(Post(text: "Loading...", loading: true))
+            if posts.count > 10 {
+                posts.removeFirst()
+            }
+            getPost()
+            self.index = posts.count-2
+        }
+    }
+    
+    //APPLE DEVICE ID
     func machineName() -> String {
       var systemInfo = utsname()
       uname(&systemInfo)
@@ -148,6 +147,7 @@ struct ContentView: View {
       }
     }
     
+    //DEVICE ID FOR MY SERVER
     func getDevice() -> Int {
         let deviceString = machineName()
         var device = 100000
@@ -169,8 +169,8 @@ struct ContentView: View {
     
     func reportView(){
         if (mode == "NORMAL"){
-            if (userId != 0 && post1.ID != nil){
-                let objectID = post1.ID!.components(separatedBy: "\"")
+            if (userId != 0 && posts[posts.count-2].ID != nil){
+                let objectID = posts[posts.count-2].ID!.components(separatedBy: "\"")
                 
                 Network.shared.apollo
                     .perform(mutation: ViewMutation(userID: userId, postID: objectID[1], time: stopTimer(), device: getDevice())) { result in
@@ -206,6 +206,7 @@ struct ContentView: View {
     //returns elapsed time in seconds example 2.345123
     func stopTimer() -> Double {
         let elapsedTime = DispatchTime.now().uptimeNanoseconds - startTime.uptimeNanoseconds + timeAddition
+        print(Double(elapsedTime) / 1_000_000_000)
         return Double(elapsedTime) / 1_000_000_000
     }
     
@@ -217,74 +218,39 @@ struct ContentView: View {
         self.timeAddition += DispatchTime.now().uptimeNanoseconds - startTime.uptimeNanoseconds
     }
     
-    func getCGSizeLength(vector: CGSize) -> CGFloat {
-        return sqrt(pow(vector.height, 2) + pow(vector.width, 2))
-    }
-    
-    func getPost(initial: Bool = false){
+    func getPost(){
         var normalMode = true
         if self.mode == "PRIVATE" {
             normalMode = false
         }
-        //check userId in case of initial run failed
-        saveUserId()
-        group.notify(queue: .main) {
-            Network.shared.apollo
-                .fetch(query: GetPostQuery(userID: userId, normalMode: normalMode), cachePolicy: .fetchIgnoringCacheCompletely) { result in
-                    switch result {
-                    case .success(let graphQLResult):
-                        if let postConnection = graphQLResult.data?.post {
-                            if loading {
-                                self.post1 = Post(
-                                    ID: postConnection.id,
-                                    text: postConnection.text,
-                                    image: postConnection.image,
-                                    shares: postConnection.shares,
-                                    views: postConnection.views,
-                                    creationTime: postConnection.creationTime
-                                )
-                                startTimer()
-                            } else {
-                                self.post2 = Post(
-                                    ID: postConnection.id,
-                                    text: postConnection.text,
-                                    image: postConnection.image,
-                                    shares: postConnection.shares,
-                                    views: postConnection.views,
-                                    creationTime: postConnection.creationTime
-                                )
-                                self.post1.nextImage = postConnection.image
-                                withAnimation(Animation.easeInOut(duration: 0.4).delay(0.4)){
-                                    self.opacityBG = 1
-                                }
-                            }
-                        }
-                        if let errors = graphQLResult.errors {
-                            if loading {
-                                self.post1 = Post(text: errors
-                                                    .map { $0.localizedDescription }
-                                                    .joined(separator: "\n"))
-                            } else {
-                                self.post2 = Post(text: errors
-                                                    .map { $0.localizedDescription }
-                                                    .joined(separator: "\n"))
-                            }
-                        }
-                    case .failure(let error):
-                        if loading {
-                            self.post1 = Post(text: error.localizedDescription)
-                        } else {
-                            self.post2 = Post(text: error.localizedDescription)
-                        }
-                    }
-                    if loading {
-                        self.loading = false
-                        getPost()
-                    } else {
-                        self.postReady = true
-                    }
+        Network.shared.apollo
+            .fetch(query: GetPostQuery(userID: userId, normalMode: normalMode), cachePolicy: .fetchIgnoringCacheCompletely) { result in
+                var index = posts.count-1
+                if posts[posts.count-2].ID == nil{
+                    index = posts.count-2
                 }
-        }
+                switch result {
+                case .success(let graphQLResult):
+                    if let postConnection = graphQLResult.data?.post {
+                        self.posts[index] = Post(
+                            ID: postConnection.id,
+                            text: postConnection.text,
+                            image: postConnection.image,
+                            shares: postConnection.shares,
+                            views: postConnection.views,
+                            creationTime: postConnection.creationTime
+                        )
+                        startTimer()
+                    }
+                    if let errors = graphQLResult.errors {
+                        self.posts[index] = Post(text: errors
+                                                            .map { $0.localizedDescription }
+                                                            .joined(separator: "\n"))
+                    }
+                case .failure(let error):
+                    self.posts[index] = Post(text: error.localizedDescription)
+                }
+            }
     }
     
     func saveUserId(){
@@ -302,12 +268,12 @@ struct ContentView: View {
                                 self.userId = userConnection
                             }
                             if let errors = graphQLResult.errors {
-                                self.post1 = Post(text: errors
+                                self.posts[posts.count-2] = Post(text: errors
                                                     .map { $0.localizedDescription }
                                                     .joined(separator: "\n"))
                             }
                         case .failure(let error):
-                            self.post1 = Post(text: error.localizedDescription)
+                            self.posts[posts.count-2] = Post(text: error.localizedDescription)
                         }
                         //notify results are downloaded
                         group.leave()

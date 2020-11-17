@@ -20,47 +20,34 @@ struct Creator: View {
     var body: some View {
         GeometryReader { metrics in
             VStack{
-            ScrollView(.vertical){
-                VStack{
-                    ZStack{
-                        if (self.newText == ""){
-                            Text("Type...")
-                                .foregroundColor(.gray)
-                                .offset(x: -(metrics.size.width/2) + 50, y: 0)
-                        }
+                //TEXT AND IMAGE
+                ScrollView(.vertical){
+                    VStack{
                         ZStack{
-                            TextEditor(text: $newText)
-                                .foregroundColor(.white)
-                            Text(newText).opacity(0).padding(.all, 8)
+                            if (self.newText == ""){
+                                Text("Type...")
+                                    .foregroundColor(.gray)
+                                    .offset(x: -(metrics.size.width/2) + 50, y: 0)
+                            }
+                            ZStack{
+                                TextEditor(text: $newText)
+                                Text(newText).opacity(0).padding(.all, 8)
+                            }
+                            .opacity(self.newText == "" ? 0.5 : 1)
                         }
-                        .opacity(self.newText == "" ? 0.5 : 1)
-                    }
-                    
-                    .padding()
-                    
-                    if (self.image != UIImage()){
-                        Image(uiImage: self.image)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: metrics.size.width * 0.9, height: metrics.size.width * 0.55)
-                            .clipped()
-                            .cornerRadius(10)
-                            .padding()
-                    }
-                }
-            }
-                Button(action: {
-                    self.isShowPhotoLibrary = true
-                }) {
-                    HStack{
-                        Image(systemName: "photo")
-                            .font(.system(size: 20))
                         
-                        Text("Select image")
-                            .fontWeight(.semibold)
+                        .padding()
+                        
+                        if (self.image != UIImage()){
+                            Image(uiImage: self.image)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: metrics.size.width * 0.9)
+                                .clipped()
+                                .cornerRadius(10)
+                                .padding()
+                        }
                     }
-                    .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: 50)
-                    .background(Color.black)
                 }
             }
             .blur(radius: sending ? 5 : 0)
@@ -72,18 +59,48 @@ struct Creator: View {
                     dismissButton: .default(Text("OK")))
             })
         }
-        .navigationBarTitle("Create", displayMode: .inline)
-        .navigationBarItems(
-            trailing:
+        .toolbar{
+            ToolbarItemGroup(placement: .bottomBar){
+                //IMAGE BUTTON
+                Button(action: {
+                    self.isShowPhotoLibrary = true
+                }) {
+                    Image(systemName: "photo")
+                }
+                Button(action: {
+                    self.isShowPhotoLibrary = true
+                }) {
+                    Text("Image")
+                }
+            }
+            ToolbarItem(placement: .bottomBar){
+                Spacer()
+            }
+            //CREATE POST
+            ToolbarItemGroup(placement: .bottomBar){
+                Button(action: {
+                    createPost()
+                }, label: {
+                    Text("Send")
+                })
                 Button(action: {
                     createPost()
                 }, label: {
                     Image(systemName: "paperplane.circle")
+                })
+            }
+        }
+        .navigationBarTitle("Create", displayMode: .inline)
+        .navigationBarItems(
+            trailing:
+                Button(action: {
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                }, label: {
+                    Image(systemName: "xmark.circle")
                         .font(.system(size: 23))
                 }))
         .sheet(isPresented: $isShowPhotoLibrary) {
             ImagePicker(sourceType: .photoLibrary, selectedImage: self.$image)
-                .preferredColorScheme(.dark)
         }
     }
     
