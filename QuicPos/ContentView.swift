@@ -18,6 +18,7 @@ struct ContentView: View {
     @State var startTime = DispatchTime.now()
     @State var viewError = ""
     @State var viewAlertShow = false
+    @State var modeAlertShow = false
     @State var index = 0
     
     //DispatchGroup for async operations
@@ -29,6 +30,20 @@ struct ContentView: View {
                 VStack{
                     //Post
                     PostView(post: posts[index], metrics: metrics.size, selectedMode: mode)
+                    
+                    //EMPTY VIEWS FOR ALERTS
+                    Spacer()
+                        .alert(isPresented: $modeAlertShow, content: {
+                            if mode == "NORMAL" {
+                                return Alert(title: Text("Mode change"), message: Text("Going to normal mode. Anonymous usage data is collected, better post rocommendation, personalized content."))
+                            } else {
+                                return Alert(title: Text("Mode change"), message: Text("Going to private mode. No data is collected, worse post rocommendation, random content."))
+                            }
+                        })
+                    Spacer()
+                        .alert(isPresented: $viewAlertShow, content: {
+                            Alert(title: Text("Error"), message: Text(viewError))
+                        })
                 }
             }
             .toolbar(content: {
@@ -44,14 +59,9 @@ struct ContentView: View {
                     }, label: {
                         Text("Prev")
                     })
-                    
                 }
                 ToolbarItem(placement: .bottomBar){
                     Spacer()
-                        //alert from view!
-                        .alert(isPresented: $viewAlertShow, content: {
-                            Alert(title: Text("Error"), message: Text(viewError))
-                        })
                 }
                 ToolbarItemGroup(placement: .bottomBar){
                     //next
@@ -97,6 +107,7 @@ struct ContentView: View {
                         } else {
                             self.mode = "NORMAL"
                         }
+                        self.modeAlertShow = true
                     }, label: {
                         if (self.mode == "NORMAL"){
                             Image(systemName: "shield")
