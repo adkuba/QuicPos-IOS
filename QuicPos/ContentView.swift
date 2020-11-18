@@ -20,6 +20,7 @@ struct ContentView: View {
     @State var viewAlertShow = false
     @State var modeAlertShow = false
     @State var index = 0
+    @State var showCreator = false
     
     //DispatchGroup for async operations
     let group = DispatchGroup()
@@ -27,9 +28,13 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             GeometryReader { metrics in
-                VStack{
+                VStack(){
                     //Post
                     PostView(post: posts[index], metrics: metrics.size, selectedMode: mode)
+                    
+                    NavigationLink(destination: Creator(), isActive: $showCreator) {
+                        EmptyView()
+                    }
                     
                     //EMPTY VIEWS FOR ALERTS
                     Spacer()
@@ -45,38 +50,59 @@ struct ContentView: View {
                             Alert(title: Text("Error"), message: Text(viewError))
                         })
                 }
+                .toolbar{
+                    ToolbarItem(placement: .bottomBar){
+                        //back
+                        Button(action: {
+                            prev()
+                        }, label: {
+                            Image(systemName: "chevron.left")
+                        })
+                    }
+                    ToolbarItem(placement: .bottomBar){
+                        Spacer()
+                    }
+                    ToolbarItem(placement: .bottomBar){
+                        //next
+                        Button(action: {
+                            next()
+                        }, label: {
+                            Image(systemName: "chevron.right")
+                        })
+                    }
+                    ToolbarItem(placement: .bottomBar){
+                        Spacer()
+                    }
+                    ToolbarItem(placement: .bottomBar){
+                        Button(action: {
+                            self.showCreator = true
+                        }, label: {
+                            Image(systemName: "square.and.pencil")
+                        })
+                    }
+                    ToolbarItem(placement: .bottomBar){
+                        Spacer()
+                    }
+                    ToolbarItem(placement: .bottomBar){
+                        Button(action: {
+                            if (self.mode == "NORMAL"){
+                                self.mode = "PRIVATE"
+                            } else {
+                                self.mode = "NORMAL"
+                            }
+                            self.modeAlertShow = true
+                        }, label: {
+                            if (self.mode == "NORMAL"){
+                                Image(systemName: "shield")
+                                    .font(.system(size: 25))
+                            } else {
+                                Image(systemName: "lock.shield")
+                                    .font(.system(size: 25))
+                            }
+                        })
+                    }
+                }
             }
-            .toolbar(content: {
-                ToolbarItemGroup(placement: .bottomBar){
-                    //back
-                    Button(action: {
-                        prev()
-                    }, label: {
-                        Image(systemName: "chevron.left")
-                    })
-                    Button(action: {
-                        prev()
-                    }, label: {
-                        Text("Prev")
-                    })
-                }
-                ToolbarItem(placement: .bottomBar){
-                    Spacer()
-                }
-                ToolbarItemGroup(placement: .bottomBar){
-                    //next
-                    Button(action: {
-                        next()
-                    }, label: {
-                        Text("Next")
-                    })
-                    Button(action: {
-                        next()
-                    }, label: {
-                        Image(systemName: "chevron.right")
-                    })
-                }
-            })
             .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
                 pauseTimer()
             }
@@ -92,31 +118,6 @@ struct ContentView: View {
                 }
             })
             .navigationBarTitle(Text("QuicPos"), displayMode: .inline)
-            .navigationBarItems(
-                leading:
-                    NavigationLink(
-                        destination: Creator(),
-                        label: {
-                            Image(systemName: "plus")
-                                .font(.system(size: 20, weight: .semibold))
-                        }),
-                trailing:
-                    Button(action: {
-                        if (self.mode == "NORMAL"){
-                            self.mode = "PRIVATE"
-                        } else {
-                            self.mode = "NORMAL"
-                        }
-                        self.modeAlertShow = true
-                    }, label: {
-                        if (self.mode == "NORMAL"){
-                            Image(systemName: "shield")
-                                .font(.system(size: 25))
-                        } else {
-                            Image(systemName: "lock.shield")
-                                .font(.system(size: 25))
-                        }
-                    }))
         }
     }
     

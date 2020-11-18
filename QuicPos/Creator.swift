@@ -19,34 +19,35 @@ struct Creator: View {
     
     var body: some View {
         GeometryReader { metrics in
-            VStack{
-                //TEXT AND IMAGE
-                ScrollView(.vertical){
-                    VStack{
+            //TEXT AND IMAGE
+            
+            ScrollView(.vertical){
+                VStack{
+                    ZStack{
+                        if (self.newText == ""){
+                            Text("Type...")
+                                .font(.system(size: 18))
+                                .foregroundColor(.gray)
+                                .offset(x: -(metrics.size.width/2) + 50, y: 0)
+                        }
                         ZStack{
-                            if (self.newText == ""){
-                                Text("Type...")
-                                    .foregroundColor(.gray)
-                                    .offset(x: -(metrics.size.width/2) + 50, y: 0)
-                            }
-                            ZStack{
-                                TextEditor(text: $newText)
-                                Text(newText).opacity(0).padding(.all, 8)
-                            }
-                            .opacity(self.newText == "" ? 0.5 : 1)
+                            TextEditor(text: $newText)
+                                .font(.system(size: 18))
+                            Text(newText).opacity(0).padding(.all, 8)
+                                .font(.system(size: 18))
                         }
-                        
-                        .padding()
-                        
-                        if (self.image != UIImage()){
-                            Image(uiImage: self.image)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: metrics.size.width * 0.9)
-                                .clipped()
-                                .cornerRadius(10)
-                                .padding()
-                        }
+                        .opacity(self.newText == "" ? 0.5 : 1)
+                    }
+                    .padding()
+                    
+                    if (self.image != UIImage()){
+                        Image(uiImage: self.image)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: metrics.size.width * 0.9)
+                            .clipped()
+                            .cornerRadius(10)
+                            .padding()
                     }
                 }
             }
@@ -58,36 +59,26 @@ struct Creator: View {
                     message: Text(alertMessage),
                     dismissButton: .default(Text("OK")))
             })
-        }
-        .toolbar{
-            ToolbarItemGroup(placement: .bottomBar){
-                //IMAGE BUTTON
-                Button(action: {
-                    self.isShowPhotoLibrary = true
-                }) {
-                    Image(systemName: "photo")
+            .toolbar{
+                ToolbarItem(placement: .bottomBar){
+                    //IMAGE BUTTON
+                    Button(action: {
+                        self.isShowPhotoLibrary = true
+                    }) {
+                        Image(systemName: "photo.on.rectangle")
+                    }
                 }
-                Button(action: {
-                    self.isShowPhotoLibrary = true
-                }) {
-                    Text("Image")
+                ToolbarItem(placement: .bottomBar){
+                    Spacer()
                 }
-            }
-            ToolbarItem(placement: .bottomBar){
-                Spacer()
-            }
-            //CREATE POST
-            ToolbarItemGroup(placement: .bottomBar){
-                Button(action: {
-                    createPost()
-                }, label: {
-                    Text("Send")
-                })
-                Button(action: {
-                    createPost()
-                }, label: {
-                    Image(systemName: "paperplane.circle")
-                })
+                //CREATE POST
+                ToolbarItem(placement: .bottomBar){
+                    Button(action: {
+                        createPost()
+                    }, label: {
+                        Image(systemName: "paperplane")
+                    })
+                }
             }
         }
         .navigationBarTitle("Create", displayMode: .inline)
@@ -96,8 +87,8 @@ struct Creator: View {
                 Button(action: {
                     UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                 }, label: {
-                    Image(systemName: "xmark.circle")
-                        .font(.system(size: 23))
+                    Image(systemName: "keyboard.chevron.compact.down")
+                        .font(.system(size: 20))
                 }))
         .sheet(isPresented: $isShowPhotoLibrary) {
             ImagePicker(sourceType: .photoLibrary, selectedImage: self.$image)

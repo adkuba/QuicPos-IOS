@@ -43,7 +43,9 @@ struct PostView: View {
         ScrollView{
             VStack{
                 //text
+                Spacer(minLength: 20)
                 Text(post.text)
+                    .font(.system(size: 18))
                     .lineLimit(nil)
                     .frame(width: metrics.width * 0.9, alignment: .leading)
                     .padding()
@@ -61,19 +63,19 @@ struct PostView: View {
                         .cornerRadius(5)
                         .padding(.vertical)
                 }
+                Spacer(minLength: 30)
                 
                 //stats
                 Text((post.creationTime ?? "20.10.2020 11:45").prefix(16))
-                    .font(.system(size: 15))
                     .foregroundColor(.gray)
                     .padding(.vertical)
                     .frame(width: metrics.width * 0.9, height: 17, alignment: .leading)
         
                 Text(String(post.views ?? 0) + " views " + String(post.shares ?? 0) + " shares")
-                    .font(.system(size: 15))
                     .foregroundColor(.gray)
                     .padding(.vertical)
                     .frame(width: metrics.width * 0.9, height: 17, alignment: .leading)
+                
                     
                 //action section
                 HStack{
@@ -121,8 +123,11 @@ struct PostView: View {
                 }
                 .frame(width: metrics.width * 0.9, height: 40, alignment: .leading)
                 .padding(.vertical)
+                
+                Divider()
             }
         }
+        .frame(height: metrics.height)
         .onChange(of: post.nextImage, perform: { value in
             if let im = value, im != ""{
                 nextImageLoader = ImageLoader(urlString: "https://storage.googleapis.com/quicpos-images/" + im)
