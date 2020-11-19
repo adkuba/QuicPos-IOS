@@ -1,6 +1,6 @@
 
-query GetPost($userID: Int!, $normalMode: Boolean!) {
-  post(userId: $userID, normalMode: $normalMode) {
+query GetPost($userID: Int!, $normalMode: Boolean!, $password: String!) {
+  post(userId: $userID, normalMode: $normalMode, password: $password) {
     ID
     text
     userId

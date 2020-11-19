@@ -69,6 +69,7 @@
 		8CBE9818254165FB007BF460 /* NewShare.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = NewShare.graphql; sourceTree = "<group>"; };
 		8CBE981C2541701F007BF460 /* NewReport.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = NewReport.graphql; sourceTree = "<group>"; };
 		8CBE98232541D454007BF460 /* NewView.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = NewView.graphql; sourceTree = "<group>"; };
+		8CEC4EA42566974900F13FDC /* GetViewerPost.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = GetViewerPost.graphql; sourceTree = "<group>"; };
 		8CEC516525320E2E0056FB75 /* Creator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Creator.swift; sourceTree = "<group>"; };
 		8CEC516D2532F63C0056FB75 /* ImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -143,6 +144,7 @@
 				8CBE98232541D454007BF460 /* NewView.graphql */,
 				8CB26C062565AEC7003ECB7E /* MyPosts.swift */,
 				8CB26C0B2565B7CD003ECB7E /* PostCard.swift */,
+				8CEC4EA42566974900F13FDC /* GetViewerPost.graphql */,
 			);
 			path = QuicPos;
 			sourceTree = "<group>";
@@ -323,7 +325,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Go to the build root and search up the chain to find the Derived Data Path where the source packages are checked out.\nDERIVED_DATA_CANDIDATE=\"${BUILD_ROOT}\"\n\nwhile ! [ -d \"${DERIVED_DATA_CANDIDATE}/SourcePackages\" ]; do\n  if [ \"${DERIVED_DATA_CANDIDATE}\" = / ]; then\n    echo >&2 \"error: Unable to locate SourcePackages directory from BUILD_ROOT: '${BUILD_ROOT}'\"\n    exit 1\n  fi\n\n  DERIVED_DATA_CANDIDATE=\"$(dirname \"${DERIVED_DATA_CANDIDATE}\")\"\ndone\n\n# Grab a reference to the directory where scripts are checked out\nSCRIPT_PATH=\"${DERIVED_DATA_CANDIDATE}/SourcePackages/checkouts/apollo-ios/scripts\"\n\nif [ -z \"${SCRIPT_PATH}\" ]; then\n    echo >&2 \"error: Couldn't find the CLI script in your checked out SPM packages; make sure to add the framework to your project.\"\n    exit 1\nfi\n\ncd \"${SRCROOT}/${TARGET_NAME}\"\n\"${SCRIPT_PATH}\"/run-bundled-codegen.sh codegen:generate --target=swift --includes=./**/*.graphql --localSchemaFile=\"schema.json\" API.swift\n#\"${SCRIPT_PATH}\"/run-bundled-codegen.sh schema:download --endpoint=\"http://api.quicpos.com/query\"\n\n\n";
+			shellScript = "# Go to the build root and search up the chain to find the Derived Data Path where the source packages are checked out.\nDERIVED_DATA_CANDIDATE=\"${BUILD_ROOT}\"\n\nwhile ! [ -d \"${DERIVED_DATA_CANDIDATE}/SourcePackages\" ]; do\n  if [ \"${DERIVED_DATA_CANDIDATE}\" = / ]; then\n    echo >&2 \"error: Unable to locate SourcePackages directory from BUILD_ROOT: '${BUILD_ROOT}'\"\n    exit 1\n  fi\n\n  DERIVED_DATA_CANDIDATE=\"$(dirname \"${DERIVED_DATA_CANDIDATE}\")\"\ndone\n\n# Grab a reference to the directory where scripts are checked out\nSCRIPT_PATH=\"${DERIVED_DATA_CANDIDATE}/SourcePackages/checkouts/apollo-ios/scripts\"\n\nif [ -z \"${SCRIPT_PATH}\" ]; then\n    echo >&2 \"error: Couldn't find the CLI script in your checked out SPM packages; make sure to add the framework to your project.\"\n    exit 1\nfi\n\ncd \"${SRCROOT}/${TARGET_NAME}\"\n\"${SCRIPT_PATH}\"/run-bundled-codegen.sh codegen:generate --target=swift --includes=./**/*.graphql --localSchemaFile=\"schema.json\" API.swift\n#\"${SCRIPT_PATH}\"/run-bundled-codegen.sh schema:download --endpoint=\"https://api.quicpos.com/query\" --skipSSLValidation\n\n\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

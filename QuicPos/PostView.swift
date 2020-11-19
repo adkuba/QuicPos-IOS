@@ -16,7 +16,7 @@ struct Post {
     var views: Int?
     var creationTime: String?
     var loading: Bool?
-    var nextImage: String?
+    var blocked: Bool?
 }
 
 struct PostView: View {
@@ -27,9 +27,7 @@ struct PostView: View {
     
     @State var userId = UserDefaults.standard.integer(forKey: "userId")
     @State @ObservedObject var imageLoader = ImageLoader(urlString: "")
-    @State @ObservedObject var nextImageLoader = ImageLoader(urlString: "")
     @State var image:UIImage = UIImage()
-    @State var nextImage: UIImage = UIImage()
     @State var displayImage = false
     @State var timer = Timer.publish(every: 0.6, on: .main, in: .common).autoconnect()
     @State var blurValue = CGFloat(0)
@@ -140,25 +138,8 @@ struct PostView: View {
             }
         }
         .frame(height: metrics.height)
-        .onChange(of: post.nextImage, perform: { value in
-            if let im = value, im != ""{
-                nextImageLoader = ImageLoader(urlString: "https://storage.googleapis.com/quicpos-images/" + im)
-            }
-        })
-        .onReceive(nextImageLoader.didChange) { data in
-            self.nextImage = UIImage(data: data) ?? UIImage()
-        }
         .onChange(of: post.image, perform: { value in
-            //system ladowania nastepnego zdjęcia
-            //nie jest w 100% optymalne bo przechowuje 2 zdj w pamięci pierwszego posta
-            //jeśli mamy jakieś następne zdj to je wykorzystujemy
-            if (post.nextImage ?? "") != "" {
-                self.displayImage = true
-                self.image = self.nextImage
-            } else {
-                //nie mamy następnego zdj, sprawdzamy czy obecne zdj istnieje
-                initNewImage(image: value)
-            }
+            initNewImage(image: value)
         })
         .animation(nil)
         .blur(radius: blurValue)
@@ -183,6 +164,7 @@ struct PostView: View {
                 self.blurValue = 0
                 self.timer.upstream.connect().cancel()
             }
+            initNewImage(image: post.image)
         })
     }
     
@@ -217,8 +199,10 @@ struct PostView: View {
         if (post.ID != nil){
             let objectID = post.ID!.components(separatedBy: "\"")
             let url = "https://www.quicpos.com/post/" + objectID[1]
+            let data = AppValues()
+            
             Network.shared.apollo
-                .perform(mutation: ShareMutation(userID: userId, postID: objectID[1])) { result in
+                .perform(mutation: ShareMutation(userID: userId, postID: objectID[1], password: data.password)) { result in
                     switch result {
                     case .success(let graphQLResult):
                         if let shareConnection = graphQLResult.data?.share {
@@ -226,6 +210,12 @@ struct PostView: View {
                                 let data = URL(string: url)!
                                 let av = UIActivityViewController(activityItems: [data], applicationActivities: nil)
                                 UIApplication.shared.windows.first?.rootViewController?.present(av, animated: true, completion: nil)
+                                
+                                var postids = UserDefaults.standard.stringArray(forKey: "myposts") ?? [String]()
+                                if !postids.contains(objectID[1]) {
+                                    postids.append(objectID[1])
+                                    UserDefaults.standard.set(postids, forKey: "myposts")
+                                }
                             } else {
                                 errorMessage = "Bad share report return! Contact us to resolve the issue."
                             }
@@ -246,11 +236,9 @@ struct PostView: View {
     
     func initNewImage(image: String?){
         if let im = image, im != "" {
-            //jesli istnieje ladujemy je - wazna dla posta w tle
             self.displayImage = true
             self.imageLoader = ImageLoader(urlString: "https://storage.googleapis.com/quicpos-images/" + image!)
         } else {
-            //jesli nie mamy zadnego zdj to nie wyswietlamy
             self.displayImage = false
         }
     }

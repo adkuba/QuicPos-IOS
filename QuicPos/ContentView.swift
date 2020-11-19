@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+struct AppValues {
+    var password = "kuba"
+}
+
 struct ContentView: View {
     
     //state allows modification during self invoke
@@ -193,9 +197,10 @@ struct ContentView: View {
         if (mode == "NORMAL"){
             if (userId != 0 && posts[posts.count-2].ID != nil){
                 let objectID = posts[posts.count-2].ID!.components(separatedBy: "\"")
+                let data = AppValues()
                 
                 Network.shared.apollo
-                    .perform(mutation: ViewMutation(userID: userId, postID: objectID[1], time: stopTimer(), device: getDevice())) { result in
+                    .perform(mutation: ViewMutation(userID: userId, postID: objectID[1], time: stopTimer(), device: getDevice(), password: data.password)) { result in
                         switch result {
                         case .success(let graphQLResult):
                             if let viewConnection = graphQLResult.data?.view {
@@ -245,8 +250,10 @@ struct ContentView: View {
         if self.mode == "PRIVATE" {
             normalMode = false
         }
+        let data = AppValues()
+        
         Network.shared.apollo
-            .fetch(query: GetPostQuery(userID: userId, normalMode: normalMode), cachePolicy: .fetchIgnoringCacheCompletely) { result in
+            .fetch(query: GetPostQuery(userID: userId, normalMode: normalMode, password: data.password), cachePolicy: .fetchIgnoringCacheCompletely) { result in
                 var index = posts.count-1
                 if posts[posts.count-2].ID == nil{
                     index = posts.count-2
@@ -281,9 +288,11 @@ struct ContentView: View {
             group.enter()
             //send this code to async
             DispatchQueue.main.async {
+                let data = AppValues()
+                
                 //fetch and save data
                 Network.shared.apollo
-                    .fetch(query: GetUserQuery(), cachePolicy: .fetchIgnoringCacheCompletely) { result in
+                    .fetch(query: GetUserQuery(password: data.password), cachePolicy: .fetchIgnoringCacheCompletely) { result in
                         switch result {
                         case .success(let graphQLResult):
                             if let userConnection = graphQLResult.data?.createUser {

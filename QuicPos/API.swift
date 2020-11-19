@@ -8,8 +8,8 @@ public final class CreatePostMutation: GraphQLMutation {
   /// The raw GraphQL definition of this operation.
   public let operationDefinition: String =
     """
-    mutation CreatePost($text: String!, $userId: Int!, $image: String!) {
-      createPost(input: {text: $text, userId: $userId, image: $image}) {
+    mutation CreatePost($text: String!, $userId: Int!, $image: String!, $password: String!) {
+      createPost(input: {text: $text, userId: $userId, image: $image}, password: $password) {
         __typename
         ID
         text
@@ -28,15 +28,17 @@ public final class CreatePostMutation: GraphQLMutation {
   public var text: String
   public var userId: Int
   public var image: String
+  public var password: String
 
-  public init(text: String, userId: Int, image: String) {
+  public init(text: String, userId: Int, image: String, password: String) {
     self.text = text
     self.userId = userId
     self.image = image
+    self.password = password
   }
 
   public var variables: GraphQLMap? {
-    return ["text": text, "userId": userId, "image": image]
+    return ["text": text, "userId": userId, "image": image, "password": password]
   }
 
   public struct Data: GraphQLSelectionSet {
@@ -44,7 +46,7 @@ public final class CreatePostMutation: GraphQLMutation {
 
     public static var selections: [GraphQLSelection] {
       return [
-        GraphQLField("createPost", arguments: ["input": ["text": GraphQLVariable("text"), "userId": GraphQLVariable("userId"), "image": GraphQLVariable("image")]], type: .nonNull(.object(CreatePost.selections))),
+        GraphQLField("createPost", arguments: ["input": ["text": GraphQLVariable("text"), "userId": GraphQLVariable("userId"), "image": GraphQLVariable("image")], "password": GraphQLVariable("password")], type: .nonNull(.object(CreatePost.selections))),
       ]
     }
 
@@ -182,8 +184,8 @@ public final class GetPostQuery: GraphQLQuery {
   /// The raw GraphQL definition of this operation.
   public let operationDefinition: String =
     """
-    query GetPost($userID: Int!, $normalMode: Boolean!) {
-      post(userId: $userID, normalMode: $normalMode) {
+    query GetPost($userID: Int!, $normalMode: Boolean!, $password: String!) {
+      post(userId: $userID, normalMode: $normalMode, password: $password) {
         __typename
         ID
         text
@@ -201,14 +203,16 @@ public final class GetPostQuery: GraphQLQuery {
 
   public var userID: Int
   public var normalMode: Bool
+  public var password: String
 
-  public init(userID: Int, normalMode: Bool) {
+  public init(userID: Int, normalMode: Bool, password: String) {
     self.userID = userID
     self.normalMode = normalMode
+    self.password = password
   }
 
   public var variables: GraphQLMap? {
-    return ["userID": userID, "normalMode": normalMode]
+    return ["userID": userID, "normalMode": normalMode, "password": password]
   }
 
   public struct Data: GraphQLSelectionSet {
@@ -216,7 +220,7 @@ public final class GetPostQuery: GraphQLQuery {
 
     public static var selections: [GraphQLSelection] {
       return [
-        GraphQLField("post", arguments: ["userId": GraphQLVariable("userID"), "normalMode": GraphQLVariable("normalMode")], type: .nonNull(.object(Post.selections))),
+        GraphQLField("post", arguments: ["userId": GraphQLVariable("userID"), "normalMode": GraphQLVariable("normalMode"), "password": GraphQLVariable("password")], type: .nonNull(.object(Post.selections))),
       ]
     }
 
@@ -354,14 +358,21 @@ public final class GetUserQuery: GraphQLQuery {
   /// The raw GraphQL definition of this operation.
   public let operationDefinition: String =
     """
-    query GetUser {
-      createUser
+    query GetUser($password: String!) {
+      createUser(password: $password)
     }
     """
 
   public let operationName: String = "GetUser"
 
-  public init() {
+  public var password: String
+
+  public init(password: String) {
+    self.password = password
+  }
+
+  public var variables: GraphQLMap? {
+    return ["password": password]
   }
 
   public struct Data: GraphQLSelectionSet {
@@ -369,7 +380,7 @@ public final class GetUserQuery: GraphQLQuery {
 
     public static var selections: [GraphQLSelection] {
       return [
-        GraphQLField("createUser", type: .nonNull(.scalar(Int.self))),
+        GraphQLField("createUser", arguments: ["password": GraphQLVariable("password")], type: .nonNull(.scalar(Int.self))),
       ]
     }
 
@@ -389,6 +400,187 @@ public final class GetUserQuery: GraphQLQuery {
       }
       set {
         resultMap.updateValue(newValue, forKey: "createUser")
+      }
+    }
+  }
+}
+
+public final class GetViewerPostQuery: GraphQLQuery {
+  /// The raw GraphQL definition of this operation.
+  public let operationDefinition: String =
+    """
+    query GetViewerPost($id: String!) {
+      viewerPost(id: $id) {
+        __typename
+        ID
+        text
+        userId
+        shares
+        views
+        creationTime
+        initialReview
+        image
+        blocked
+      }
+    }
+    """
+
+  public let operationName: String = "GetViewerPost"
+
+  public var id: String
+
+  public init(id: String) {
+    self.id = id
+  }
+
+  public var variables: GraphQLMap? {
+    return ["id": id]
+  }
+
+  public struct Data: GraphQLSelectionSet {
+    public static let possibleTypes: [String] = ["Query"]
+
+    public static var selections: [GraphQLSelection] {
+      return [
+        GraphQLField("viewerPost", arguments: ["id": GraphQLVariable("id")], type: .nonNull(.object(ViewerPost.selections))),
+      ]
+    }
+
+    public private(set) var resultMap: ResultMap
+
+    public init(unsafeResultMap: ResultMap) {
+      self.resultMap = unsafeResultMap
+    }
+
+    public init(viewerPost: ViewerPost) {
+      self.init(unsafeResultMap: ["__typename": "Query", "viewerPost": viewerPost.resultMap])
+    }
+
+    public var viewerPost: ViewerPost {
+      get {
+        return ViewerPost(unsafeResultMap: resultMap["viewerPost"]! as! ResultMap)
+      }
+      set {
+        resultMap.updateValue(newValue.resultMap, forKey: "viewerPost")
+      }
+    }
+
+    public struct ViewerPost: GraphQLSelectionSet {
+      public static let possibleTypes: [String] = ["PostOut"]
+
+      public static var selections: [GraphQLSelection] {
+        return [
+          GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
+          GraphQLField("ID", type: .nonNull(.scalar(String.self))),
+          GraphQLField("text", type: .nonNull(.scalar(String.self))),
+          GraphQLField("userId", type: .nonNull(.scalar(Int.self))),
+          GraphQLField("shares", type: .nonNull(.scalar(Int.self))),
+          GraphQLField("views", type: .nonNull(.scalar(Int.self))),
+          GraphQLField("creationTime", type: .nonNull(.scalar(String.self))),
+          GraphQLField("initialReview", type: .nonNull(.scalar(Bool.self))),
+          GraphQLField("image", type: .nonNull(.scalar(String.self))),
+          GraphQLField("blocked", type: .nonNull(.scalar(Bool.self))),
+        ]
+      }
+
+      public private(set) var resultMap: ResultMap
+
+      public init(unsafeResultMap: ResultMap) {
+        self.resultMap = unsafeResultMap
+      }
+
+      public init(id: String, text: String, userId: Int, shares: Int, views: Int, creationTime: String, initialReview: Bool, image: String, blocked: Bool) {
+        self.init(unsafeResultMap: ["__typename": "PostOut", "ID": id, "text": text, "userId": userId, "shares": shares, "views": views, "creationTime": creationTime, "initialReview": initialReview, "image": image, "blocked": blocked])
+      }
+
+      public var __typename: String {
+        get {
+          return resultMap["__typename"]! as! String
+        }
+        set {
+          resultMap.updateValue(newValue, forKey: "__typename")
+        }
+      }
+
+      public var id: String {
+        get {
+          return resultMap["ID"]! as! String
+        }
+        set {
+          resultMap.updateValue(newValue, forKey: "ID")
+        }
+      }
+
+      public var text: String {
+        get {
+          return resultMap["text"]! as! String
+        }
+        set {
+          resultMap.updateValue(newValue, forKey: "text")
+        }
+      }
+
+      public var userId: Int {
+        get {
+          return resultMap["userId"]! as! Int
+        }
+        set {
+          resultMap.updateValue(newValue, forKey: "userId")
+        }
+      }
+
+      public var shares: Int {
+        get {
+          return resultMap["shares"]! as! Int
+        }
+        set {
+          resultMap.updateValue(newValue, forKey: "shares")
+        }
+      }
+
+      public var views: Int {
+        get {
+          return resultMap["views"]! as! Int
+        }
+        set {
+          resultMap.updateValue(newValue, forKey: "views")
+        }
+      }
+
+      public var creationTime: String {
+        get {
+          return resultMap["creationTime"]! as! String
+        }
+        set {
+          resultMap.updateValue(newValue, forKey: "creationTime")
+        }
+      }
+
+      public var initialReview: Bool {
+        get {
+          return resultMap["initialReview"]! as! Bool
+        }
+        set {
+          resultMap.updateValue(newValue, forKey: "initialReview")
+        }
+      }
+
+      public var image: String {
+        get {
+          return resultMap["image"]! as! String
+        }
+        set {
+          resultMap.updateValue(newValue, forKey: "image")
+        }
+      }
+
+      public var blocked: Bool {
+        get {
+          return resultMap["blocked"]! as! Bool
+        }
+        set {
+          resultMap.updateValue(newValue, forKey: "blocked")
+        }
       }
     }
   }
@@ -451,8 +643,8 @@ public final class ShareMutation: GraphQLMutation {
   /// The raw GraphQL definition of this operation.
   public let operationDefinition: String =
     """
-    mutation Share($userID: Int!, $postID: String!) {
-      share(input: {userID: $userID, postID: $postID})
+    mutation Share($userID: Int!, $postID: String!, $password: String!) {
+      share(input: {userID: $userID, postID: $postID}, password: $password)
     }
     """
 
@@ -460,14 +652,16 @@ public final class ShareMutation: GraphQLMutation {
 
   public var userID: Int
   public var postID: String
+  public var password: String
 
-  public init(userID: Int, postID: String) {
+  public init(userID: Int, postID: String, password: String) {
     self.userID = userID
     self.postID = postID
+    self.password = password
   }
 
   public var variables: GraphQLMap? {
-    return ["userID": userID, "postID": postID]
+    return ["userID": userID, "postID": postID, "password": password]
   }
 
   public struct Data: GraphQLSelectionSet {
@@ -475,7 +669,7 @@ public final class ShareMutation: GraphQLMutation {
 
     public static var selections: [GraphQLSelection] {
       return [
-        GraphQLField("share", arguments: ["input": ["userID": GraphQLVariable("userID"), "postID": GraphQLVariable("postID")]], type: .nonNull(.scalar(Bool.self))),
+        GraphQLField("share", arguments: ["input": ["userID": GraphQLVariable("userID"), "postID": GraphQLVariable("postID")], "password": GraphQLVariable("password")], type: .nonNull(.scalar(Bool.self))),
       ]
     }
 
@@ -504,8 +698,8 @@ public final class ViewMutation: GraphQLMutation {
   /// The raw GraphQL definition of this operation.
   public let operationDefinition: String =
     """
-    mutation View($userID: Int!, $postID: String!, $time: Float!, $device: Int!) {
-      view(input: {postID: $postID, userId: $userID, time: $time, deviceDetails: $device})
+    mutation View($userID: Int!, $postID: String!, $time: Float!, $device: Int!, $password: String!) {
+      view(input: {postID: $postID, userId: $userID, time: $time, deviceDetails: $device}, password: $password)
     }
     """
 
@@ -515,16 +709,18 @@ public final class ViewMutation: GraphQLMutation {
   public var postID: String
   public var time: Double
   public var device: Int
+  public var password: String
 
-  public init(userID: Int, postID: String, time: Double, device: Int) {
+  public init(userID: Int, postID: String, time: Double, device: Int, password: String) {
     self.userID = userID
     self.postID = postID
     self.time = time
     self.device = device
+    self.password = password
   }
 
   public var variables: GraphQLMap? {
-    return ["userID": userID, "postID": postID, "time": time, "device": device]
+    return ["userID": userID, "postID": postID, "time": time, "device": device, "password": password]
   }
 
   public struct Data: GraphQLSelectionSet {
@@ -532,7 +728,7 @@ public final class ViewMutation: GraphQLMutation {
 
     public static var selections: [GraphQLSelection] {
       return [
-        GraphQLField("view", arguments: ["input": ["postID": GraphQLVariable("postID"), "userId": GraphQLVariable("userID"), "time": GraphQLVariable("time"), "deviceDetails": GraphQLVariable("device")]], type: .nonNull(.scalar(Bool.self))),
+        GraphQLField("view", arguments: ["input": ["postID": GraphQLVariable("postID"), "userId": GraphQLVariable("userID"), "time": GraphQLVariable("time"), "deviceDetails": GraphQLVariable("device")], "password": GraphQLVariable("password")], type: .nonNull(.scalar(Bool.self))),
       ]
     }
 

@@ -1,3 +1,9 @@
-mutation Share($userID: Int!, $postID: String!) {
-  share(input: {userID: $userID, postID: $postID})
+mutation Share($userID: Int!, $postID: String!, $password: String!) {
+  share(
+    input: {
+        userID: $userID,
+        postID: $postID
+    }
+    password: $password
+  )
 }

@@ -107,8 +107,10 @@ struct Creator: View {
     
     func createPost(){
         self.sending = true
+        let data = AppValues()
+        
         Network.shared.apollo
-            .perform(mutation: CreatePostMutation(text: newText, userId: userId, image: convertImageToBase64String(img: image))) { result in
+            .perform(mutation: CreatePostMutation(text: newText, userId: userId, image: convertImageToBase64String(img: image), password: data.password)) { result in
                 switch result {
                 case .success(let graphQLResult):
                     if let postConnection = graphQLResult.data?.createPost {
@@ -119,6 +121,12 @@ struct Creator: View {
                         let data = URL(string: url)!
                         let av = UIActivityViewController(activityItems: [data], applicationActivities: nil)
                         UIApplication.shared.windows.first?.rootViewController?.present(av, animated: true, completion: nil)
+                        
+                        var postids = UserDefaults.standard.stringArray(forKey: "myposts") ?? [String]()
+                        if !postids.contains(objectID[1]) {
+                            postids.append(objectID[1])
+                            UserDefaults.standard.set(postids, forKey: "myposts")
+                        }
                     }
                     if let errors = graphQLResult.errors {
                         self.alertMessage = errors
