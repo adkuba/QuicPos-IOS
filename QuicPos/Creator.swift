@@ -49,6 +49,37 @@ struct Creator: View {
                         }
                     }
                 }
+                HStack{
+                    Button(action: {
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                        self.isShowPhotoLibrary = true
+                    }) {
+                        Image(systemName: "photo")
+                            .font(.system(size: 20))
+                    }
+                    .padding()
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    }, label: {
+                        Image(systemName: "keyboard.chevron.compact.down")
+                            .font(.system(size: 20))
+                    })
+                    .padding()
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        createPost()
+                    }, label: {
+                        Image(systemName: "paperplane")
+                            .font(.system(size: 20))
+                    })
+                    .padding()
+                }
+                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: 40)
             }
             .blur(radius: sending ? 5 : 0)
             //$ to jest binding
@@ -59,46 +90,7 @@ struct Creator: View {
                     dismissButton: .default(Text("OK")))
             })
         }
-        .toolbar{
-            ToolbarItemGroup(placement: .bottomBar){
-                //IMAGE BUTTON
-                Button(action: {
-                    self.isShowPhotoLibrary = true
-                }) {
-                    Image(systemName: "photo")
-                }
-                Button(action: {
-                    self.isShowPhotoLibrary = true
-                }) {
-                    Text("Image")
-                }
-            }
-            ToolbarItem(placement: .bottomBar){
-                Spacer()
-            }
-            //CREATE POST
-            ToolbarItemGroup(placement: .bottomBar){
-                Button(action: {
-                    createPost()
-                }, label: {
-                    Text("Send")
-                })
-                Button(action: {
-                    createPost()
-                }, label: {
-                    Image(systemName: "paperplane.circle")
-                })
-            }
-        }
         .navigationBarTitle("Create", displayMode: .inline)
-        .navigationBarItems(
-            trailing:
-                Button(action: {
-                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                }, label: {
-                    Image(systemName: "xmark.circle")
-                        .font(.system(size: 23))
-                }))
         .sheet(isPresented: $isShowPhotoLibrary) {
             ImagePicker(sourceType: .photoLibrary, selectedImage: self.$image)
         }

@@ -20,6 +20,9 @@ struct ContentView: View {
     @State var viewAlertShow = false
     @State var index = 0
     
+    @State var showMyPosts = false
+    @State var modeAlert = false
+    
     //DispatchGroup for async operations
     let group = DispatchGroup()
     
@@ -29,41 +32,70 @@ struct ContentView: View {
                 VStack{
                     //Post
                     PostView(post: posts[index], metrics: metrics.size, selectedMode: mode)
+                    
+                    Spacer()
+                        .alert(isPresented: $viewAlertShow, content: {
+                            Alert(title: Text("Error"), message: Text(viewError))
+                        })
+                    Spacer()
+                        .alert(isPresented: $modeAlert, content: {
+                            if mode == "NORMAL"{
+                                return Alert(title: Text("Mode change"), message: Text("Going to normal mode. Personalized content, user data collected."))
+                            } else {
+                                return Alert(title: Text("Mode change"), message: Text("Going to private mode. Random content, no user data collected."))
+                            }
+                        })
                 }
             }
             .toolbar(content: {
-                ToolbarItemGroup(placement: .bottomBar){
+                ToolbarItem(placement: .bottomBar){
                     //back
                     Button(action: {
                         prev()
                     }, label: {
                         Image(systemName: "chevron.left")
                     })
-                    Button(action: {
-                        prev()
-                    }, label: {
-                        Text("Prev")
-                    })
-                    
                 }
                 ToolbarItem(placement: .bottomBar){
                     Spacer()
-                        //alert from view!
-                        .alert(isPresented: $viewAlertShow, content: {
-                            Alert(title: Text("Error"), message: Text(viewError))
-                        })
                 }
-                ToolbarItemGroup(placement: .bottomBar){
+                ToolbarItem(placement: .bottomBar){
                     //next
                     Button(action: {
                         next()
                     }, label: {
-                        Text("Next")
-                    })
-                    Button(action: {
-                        next()
-                    }, label: {
                         Image(systemName: "chevron.right")
+                    })
+                }
+                ToolbarItem(placement: .bottomBar){
+                    Spacer()
+                }
+                ToolbarItem(placement: .bottomBar){
+                    Button(action: {
+                        self.showMyPosts = true
+                    }, label: {
+                        Image(systemName: "suit.heart")
+                    })
+                }
+                ToolbarItem(placement: .bottomBar){
+                    Spacer()
+                }
+                ToolbarItem(placement: .bottomBar){
+                    Button(action: {
+                        if (self.mode == "NORMAL"){
+                            self.mode = "PRIVATE"
+                        } else {
+                            self.mode = "NORMAL"
+                        }
+                        self.modeAlert = true
+                    }, label: {
+                        if (self.mode == "NORMAL"){
+                            Image(systemName: "shield")
+                                .font(.system(size: 25))
+                        } else {
+                            Image(systemName: "lock.shield")
+                                .font(.system(size: 25))
+                        }
                     })
                 }
             })
@@ -85,27 +117,17 @@ struct ContentView: View {
             .navigationBarItems(
                 leading:
                     NavigationLink(
-                        destination: Creator(),
+                        destination: MyPosts(),
+                        isActive: $showMyPosts,
                         label: {
-                            Image(systemName: "plus")
-                                .font(.system(size: 20, weight: .semibold))
+                            Text("")
                         }),
                 trailing:
-                    Button(action: {
-                        if (self.mode == "NORMAL"){
-                            self.mode = "PRIVATE"
-                        } else {
-                            self.mode = "NORMAL"
-                        }
-                    }, label: {
-                        if (self.mode == "NORMAL"){
-                            Image(systemName: "shield")
-                                .font(.system(size: 25))
-                        } else {
-                            Image(systemName: "lock.shield")
-                                .font(.system(size: 25))
-                        }
-                    }))
+                    NavigationLink(
+                        destination: Creator(),
+                        label: {
+                            Image(systemName: "square.and.pencil")
+                        }))
         }
     }
     
@@ -235,6 +257,7 @@ struct ContentView: View {
                         self.posts[index] = Post(
                             ID: postConnection.id,
                             text: postConnection.text,
+                            userid: postConnection.userId,
                             image: postConnection.image,
                             shares: postConnection.shares,
                             views: postConnection.views,

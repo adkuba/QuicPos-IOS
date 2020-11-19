@@ -20,6 +20,8 @@
 		8C6CC3B62528EB85005E6430 /* Apollo in Frameworks */ = {isa = PBXBuildFile; productRef = 8C6CC3B52528EB85005E6430 /* Apollo */; };
 		8C6CC3C4252B080C005E6430 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C6CC3C3252B080C005E6430 /* API.swift */; };
 		8C6CC3D8252B0DBF005E6430 /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C6CC3D7252B0DBF005E6430 /* Network.swift */; };
+		8CB26C072565AEC7003ECB7E /* MyPosts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CB26C062565AEC7003ECB7E /* MyPosts.swift */; };
+		8CB26C0C2565B7CD003ECB7E /* PostCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CB26C0B2565B7CD003ECB7E /* PostCard.swift */; };
 		8CEC516625320E2F0056FB75 /* Creator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CEC516525320E2E0056FB75 /* Creator.swift */; };
 		8CEC516E2532F63D0056FB75 /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CEC516D2532F63C0056FB75 /* ImageLoader.swift */; };
 /* End PBXBuildFile section */
@@ -62,6 +64,8 @@
 		8C6CC3C3252B080C005E6430 /* API.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
 		8C6CC3D6252B0D85005E6430 /* GetUser.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = GetUser.graphql; sourceTree = "<group>"; };
 		8C6CC3D7252B0DBF005E6430 /* Network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Network.swift; sourceTree = "<group>"; };
+		8CB26C062565AEC7003ECB7E /* MyPosts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPosts.swift; sourceTree = "<group>"; };
+		8CB26C0B2565B7CD003ECB7E /* PostCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostCard.swift; sourceTree = "<group>"; };
 		8CBE9818254165FB007BF460 /* NewShare.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = NewShare.graphql; sourceTree = "<group>"; };
 		8CBE981C2541701F007BF460 /* NewReport.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = NewReport.graphql; sourceTree = "<group>"; };
 		8CBE98232541D454007BF460 /* NewView.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = NewView.graphql; sourceTree = "<group>"; };
@@ -137,6 +141,8 @@
 				8C412CAA253441A500C7FC51 /* ImagePicker.swift */,
 				8C6CC38A2528CDC1005E6430 /* Preview Content */,
 				8CBE98232541D454007BF460 /* NewView.graphql */,
+				8CB26C062565AEC7003ECB7E /* MyPosts.swift */,
+				8CB26C0B2565B7CD003ECB7E /* PostCard.swift */,
 			);
 			path = QuicPos;
 			sourceTree = "<group>";
@@ -332,8 +338,10 @@
 				8CEC516625320E2F0056FB75 /* Creator.swift in Sources */,
 				8C6CC3D8252B0DBF005E6430 /* Network.swift in Sources */,
 				8C412CAB253441A500C7FC51 /* ImagePicker.swift in Sources */,
+				8CB26C072565AEC7003ECB7E /* MyPosts.swift in Sources */,
 				8C6C8792252C569800D4D042 /* PostView.swift in Sources */,
 				8C6CC3852528CDB8005E6430 /* QuicPosApp.swift in Sources */,
+				8CB26C0C2565B7CD003ECB7E /* PostCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

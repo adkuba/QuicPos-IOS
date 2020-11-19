@@ -10,6 +10,7 @@ import SwiftUI
 struct Post {
     var ID: String?
     var text: String
+    var userid: Int?
     var image: String?
     var shares: Int?
     var views: Int?
@@ -42,6 +43,14 @@ struct PostView: View {
     var body: some View {
         ScrollView{
             VStack{
+                //id
+                Spacer(minLength: 30)
+                Text("User @" + String(abs(post.userid ?? -1)))
+                    .font(.system(size: 15))
+                    .foregroundColor(.gray)
+                    .padding(.vertical)
+                    .frame(width: metrics.width * 0.9, height: 17, alignment: .leading)
+                
                 //text
                 Text(post.text)
                     .lineLimit(nil)
@@ -61,6 +70,8 @@ struct PostView: View {
                         .cornerRadius(5)
                         .padding(.vertical)
                 }
+                
+                Spacer(minLength: 20)
                 
                 //stats
                 Text((post.creationTime ?? "20.10.2020 11:45").prefix(16))
@@ -89,6 +100,7 @@ struct PostView: View {
                                 .offset(x:0, y:4)
                         }
                     })
+                    .foregroundColor(.primary)
                     .offset(x: 0, y: -4)
                     .alert(isPresented: $shareAlertShow, content: {
                         Alert(title: Text("Error"), message: Text(shareErrorMessage))
@@ -105,6 +117,7 @@ struct PostView: View {
                                 .fontWeight(.semibold)
                         }
                     })
+                    .foregroundColor(.primary)
                     .offset(x: 20, y: 0)
                     .alert(isPresented: $reportConfirmationAlertShow, content: {
                         if (reportAlertShow){
@@ -121,8 +134,12 @@ struct PostView: View {
                 }
                 .frame(width: metrics.width * 0.9, height: 40, alignment: .leading)
                 .padding(.vertical)
+                
+                Spacer(minLength: 10)
+                Divider()
             }
         }
+        .frame(height: metrics.height)
         .onChange(of: post.nextImage, perform: { value in
             if let im = value, im != ""{
                 nextImageLoader = ImageLoader(urlString: "https://storage.googleapis.com/quicpos-images/" + im)
