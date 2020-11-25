@@ -42,10 +42,10 @@ struct Creator: View {
                             Image(uiImage: self.image)
                                 .resizable()
                                 .scaledToFill()
-                                .frame(width: metrics.size.width * 0.9)
+                                .padding()
+                                .frame(width: metrics.size.width)
                                 .clipped()
                                 .cornerRadius(10)
-                                .padding()
                         }
                     }
                 }

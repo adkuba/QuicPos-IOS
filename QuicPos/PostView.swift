@@ -37,22 +37,24 @@ struct PostView: View {
     @State var reportConfirmationAlertShow = false
     @State var reportMessage = ""
     @State var reportAlertShow = false
+    @State var textParsed: [String] = []
 
     var body: some View {
         ScrollView{
             VStack{
                 //id
                 Spacer(minLength: 30)
-                Text("User @" + String(abs(post.userid ?? -1)))
+                Text("User @" + String(post.userid ?? -1))
                     .font(.system(size: 15))
                     .foregroundColor(.gray)
-                    .padding(.vertical)
-                    .frame(width: metrics.width * 0.9, height: 17, alignment: .leading)
+                    .frame(width: metrics.width, height: 17, alignment: .leading)
+                    .padding()
                 
                 //text
-                Text(post.text)
+                LinkedText(post.text)
                     .lineLimit(nil)
-                    .frame(width: metrics.width * 0.9, alignment: .leading)
+                    .frame(width: metrics.width, alignment: .leading)
+                    .fixedSize(horizontal: false, vertical: true)
                     .padding()
                     
                 //image
@@ -60,13 +62,13 @@ struct PostView: View {
                     Image(uiImage: image)
                         .resizable()
                         .scaledToFill()
-                        .frame(width: metrics.width * 0.9)
+                        .frame(width: metrics.width)
+                        .padding()
+                        .clipped()
+                        .cornerRadius(5)
                         .onReceive(imageLoader.didChange) { data in
                             self.image = UIImage(data: data) ?? UIImage()
                         }
-                        .clipped()
-                        .cornerRadius(5)
-                        .padding(.vertical)
                 }
                 
                 Spacer(minLength: 20)
@@ -75,14 +77,14 @@ struct PostView: View {
                 Text((post.creationTime ?? "20.10.2020 11:45").prefix(16))
                     .font(.system(size: 15))
                     .foregroundColor(.gray)
-                    .padding(.vertical)
-                    .frame(width: metrics.width * 0.9, height: 17, alignment: .leading)
+                    .frame(width: metrics.width, height: 17, alignment: .leading)
+                    .padding()
         
                 Text(String(post.views ?? 0) + " views " + String(post.shares ?? 0) + " shares")
                     .font(.system(size: 15))
                     .foregroundColor(.gray)
-                    .padding(.vertical)
-                    .frame(width: metrics.width * 0.9, height: 17, alignment: .leading)
+                    .frame(width: metrics.width, height: 17, alignment: .leading)
+                    .padding()
                     
                 //action section
                 HStack{
@@ -130,8 +132,8 @@ struct PostView: View {
                         }
                     })
                 }
-                .frame(width: metrics.width * 0.9, height: 40, alignment: .leading)
-                .padding(.vertical)
+                .frame(width: metrics.width, height: 40, alignment: .leading)
+                .padding()
                 
                 Spacer(minLength: 10)
                 Divider()

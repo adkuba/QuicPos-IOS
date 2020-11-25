@@ -32,6 +32,13 @@ struct ContentView: View {
     
     var body: some View {
         NavigationView {
+            /*
+             Tutaj trzeba dopisać widok menu dla ipada
+             i usunąć z dołu .navigationViewStyle(StackNavigationViewStyle())
+             PLUS POPRAWIC Z POSTVIEW PADDING PRZY ZDJECIU!!!! nie robic metrisc * 0.9 bo na ipadzie sie rozjerzdza 
+             
+             Menu()
+             */
             GeometryReader { metrics in
                 VStack{
                     //Post
@@ -133,6 +140,7 @@ struct ContentView: View {
                             Image(systemName: "square.and.pencil")
                         }))
         }
+        .navigationViewStyle(StackNavigationViewStyle())
     }
     
     func prev() {
