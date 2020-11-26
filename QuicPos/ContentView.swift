@@ -39,24 +39,22 @@ struct ContentView: View {
              
              Menu()
              */
-            GeometryReader { metrics in
-                VStack{
-                    //Post
-                    PostView(post: posts[index], metrics: metrics.size, selectedMode: mode)
-                    
-                    Spacer()
-                        .alert(isPresented: $viewAlertShow, content: {
-                            Alert(title: Text("Error"), message: Text(viewError))
-                        })
-                    Spacer()
-                        .alert(isPresented: $modeAlert, content: {
-                            if mode == "NORMAL"{
-                                return Alert(title: Text("Mode change"), message: Text("Going to normal mode. Personalized content, user data collected."))
-                            } else {
-                                return Alert(title: Text("Mode change"), message: Text("Going to private mode. Random content, no user data collected."))
-                            }
-                        })
-                }
+            VStack{
+                //Post
+                PostView(post: posts[index], selectedMode: mode)
+                
+                Spacer()
+                    .alert(isPresented: $viewAlertShow, content: {
+                        Alert(title: Text("Error"), message: Text(viewError))
+                    })
+                Spacer()
+                    .alert(isPresented: $modeAlert, content: {
+                        if mode == "NORMAL"{
+                            return Alert(title: Text("Mode change"), message: Text("Going to normal mode. Personalized content, user data collected."))
+                        } else {
+                            return Alert(title: Text("Mode change"), message: Text("Going to private mode. Random content, no user data collected."))
+                        }
+                    })
             }
             .toolbar(content: {
                 ToolbarItem(placement: .bottomBar){

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct Creator: View {
     
+    @ObservedObject private var keyboard = KeyboardResponder()
     @State var newText = ""
     @State var isShowPhotoLibrary = false
     @State var image = UIImage()
@@ -42,13 +43,14 @@ struct Creator: View {
                             Image(uiImage: self.image)
                                 .resizable()
                                 .scaledToFill()
+                                .cornerRadius(5)
                                 .padding()
                                 .frame(width: metrics.size.width)
                                 .clipped()
-                                .cornerRadius(10)
                         }
                     }
                 }
+                .frame(height: keyboard.currentHeight == CGFloat(0) ? metrics.size.height : metrics.size.height - 45)
                 HStack{
                     Button(action: {
                         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
@@ -80,6 +82,7 @@ struct Creator: View {
                     .padding()
                 }
                 .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: 40)
+                .opacity(keyboard.currentHeight == CGFloat(0) ? 0 : 1)
             }
             .blur(radius: sending ? 5 : 0)
             //$ to jest binding
@@ -90,6 +93,28 @@ struct Creator: View {
                     dismissButton: .default(Text("OK")))
             })
         }
+        .toolbar(content: {
+            ToolbarItem(placement: .bottomBar){
+                Button(action: {
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    self.isShowPhotoLibrary = true
+                }) {
+                    Image(systemName: "photo")
+                        .font(.system(size: 20))
+                }
+            }
+            ToolbarItem(placement: .bottomBar){
+                Spacer()
+            }
+            ToolbarItem(placement: .bottomBar){
+                Button(action: {
+                    createPost()
+                }, label: {
+                    Image(systemName: "paperplane")
+                        .font(.system(size: 20))
+                })
+            }
+        })
         .navigationBarTitle("Create", displayMode: .inline)
         .sheet(isPresented: $isShowPhotoLibrary) {
             ImagePicker(sourceType: .photoLibrary, selectedImage: self.$image)
@@ -147,5 +172,31 @@ struct Creator: View {
 struct Creator_Previews: PreviewProvider {
     static var previews: some View {
         Creator()
+    }
+}
+
+
+final class KeyboardResponder: ObservableObject {
+    private var notificationCenter: NotificationCenter
+    @Published private(set) var currentHeight: CGFloat = 0
+
+    init(center: NotificationCenter = .default) {
+        notificationCenter = center
+        notificationCenter.addObserver(self, selector: #selector(keyBoardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(keyBoardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+
+    deinit {
+        notificationCenter.removeObserver(self)
+    }
+
+    @objc func keyBoardWillShow(notification: Notification) {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            currentHeight = keyboardSize.height
+        }
+    }
+
+    @objc func keyBoardWillHide(notification: Notification) {
+        currentHeight = 0
     }
 }

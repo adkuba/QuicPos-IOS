@@ -20,7 +20,7 @@ struct PostCard: View {
         VStack{
             Spacer(minLength: 40)
             NavigationLink(
-                destination: PostView(post: post, metrics: metrics, selectedMode: "NORMAL"),
+                destination: PostView(post: post, selectedMode: "NORMAL"),
                 label: {
                     VStack{
                         Text(post.text)
@@ -55,7 +55,6 @@ struct PostCard: View {
                 })
             Divider()
         }
-        .navigationBarTitle("Saved", displayMode: .inline)
         .onAppear(perform: {
             if let im = post.image, im != "" {
                 self.imageLoader = ImageLoader(urlString: "https://storage.googleapis.com/quicpos-images/" + post.image!)

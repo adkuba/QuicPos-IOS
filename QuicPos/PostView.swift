@@ -22,7 +22,6 @@ struct Post {
 struct PostView: View {
     
     var post: Post
-    var metrics: CGSize
     var selectedMode: String
     
     @State var userId = UserDefaults.standard.integer(forKey: "userId")
@@ -40,106 +39,108 @@ struct PostView: View {
     @State var textParsed: [String] = []
 
     var body: some View {
-        ScrollView{
-            VStack{
-                //id
-                Spacer(minLength: 30)
-                Text("User @" + String(post.userid ?? -1))
-                    .font(.system(size: 15))
-                    .foregroundColor(.gray)
-                    .frame(width: metrics.width, height: 17, alignment: .leading)
-                    .padding()
-                
-                //text
-                LinkedText(post.text)
-                    .lineLimit(nil)
-                    .frame(width: metrics.width, alignment: .leading)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding()
-                    
-                //image
-                if displayImage {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: metrics.width)
+        GeometryReader { metrics in
+            ScrollView{
+                VStack{
+                    //id
+                    Spacer(minLength: 30)
+                    Text("User @" + String(post.userid ?? -1))
+                        .font(.system(size: 15))
+                        .foregroundColor(.gray)
                         .padding()
-                        .clipped()
-                        .cornerRadius(5)
-                        .onReceive(imageLoader.didChange) { data in
-                            self.image = UIImage(data: data) ?? UIImage()
-                        }
-                }
-                
-                Spacer(minLength: 20)
-                
-                //stats
-                Text((post.creationTime ?? "20.10.2020 11:45").prefix(16))
-                    .font(.system(size: 15))
-                    .foregroundColor(.gray)
-                    .frame(width: metrics.width, height: 17, alignment: .leading)
-                    .padding()
-        
-                Text(String(post.views ?? 0) + " views " + String(post.shares ?? 0) + " shares")
-                    .font(.system(size: 15))
-                    .foregroundColor(.gray)
-                    .frame(width: metrics.width, height: 17, alignment: .leading)
-                    .padding()
+                        .frame(width: metrics.size.width, height: 17, alignment: .leading)
                     
-                //action section
-                HStack{
-                    Button(action: {
-                        //share
-                        reportShare()
-                    }, label: {
-                        HStack{
-                            Image(systemName: "square.and.arrow.up")
-                                .font(.system(size: 22))
-                            Text("Share")
-                                .fontWeight(.semibold)
-                                .offset(x:0, y:4)
-                        }
-                    })
-                    .foregroundColor(.primary)
-                    .offset(x: 0, y: -4)
-                    .alert(isPresented: $shareAlertShow, content: {
-                        Alert(title: Text("Error"), message: Text(shareErrorMessage))
-                    })
+                    //text
+                    LinkedText(post.text)
+                        .lineLimit(nil)
+                        .padding()
+                        .frame(width: metrics.size.width, alignment: .leading)
+                        .fixedSize(horizontal: false, vertical: true)
                         
-                    Button(action: {
-                        self.reportConfirmationAlertShow = true
-                        self.reportAlertShow = false
-                    }, label: {
-                        HStack{
-                            Image(systemName: "exclamationmark.bubble")
-                                .font(.system(size: 22))
-                            Text("Report")
-                                .fontWeight(.semibold)
-                        }
-                    })
-                    .foregroundColor(.primary)
-                    .offset(x: 20, y: 0)
-                    .alert(isPresented: $reportConfirmationAlertShow, content: {
-                        if (reportAlertShow){
-                            return Alert(title: Text("Report"), message: Text(reportMessage))
-                        } else {
-                            return Alert(
-                                title: Text("Are you sure?"),
-                                message: Text("Do you really want to report this post?"),
-                                primaryButton: .destructive(Text("Yes"), action: reportPost),
-                                secondaryButton: .cancel(Text("No"))
-                            )
-                        }
-                    })
+                    //image
+                    if displayImage {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFill()
+                            .cornerRadius(5)
+                            .padding()
+                            .frame(width: metrics.size.width)
+                            .clipped()
+                            .onReceive(imageLoader.didChange) { data in
+                                self.image = UIImage(data: data) ?? UIImage()
+                            }
+                    }
+                    
+                    Spacer(minLength: 20)
+                    
+                    //stats
+                    Text((post.creationTime ?? "20.10.2020 11:45").prefix(16))
+                        .font(.system(size: 15))
+                        .foregroundColor(.gray)
+                        .padding()
+                        .frame(width: metrics.size.width, height: 17, alignment: .leading)
+            
+                    Text(String(post.views ?? 0) + " views " + String(post.shares ?? 0) + " shares")
+                        .font(.system(size: 15))
+                        .foregroundColor(.gray)
+                        .padding()
+                        .frame(width: metrics.size.width, height: 17, alignment: .leading)
+                        
+                    //action section
+                    HStack{
+                        Button(action: {
+                            //share
+                            reportShare()
+                        }, label: {
+                            HStack{
+                                Image(systemName: "square.and.arrow.up")
+                                    .font(.system(size: 22))
+                                Text("Share")
+                                    .fontWeight(.semibold)
+                                    .offset(x:0, y:4)
+                            }
+                        })
+                        .foregroundColor(.primary)
+                        .offset(x: 0, y: -4)
+                        .alert(isPresented: $shareAlertShow, content: {
+                            Alert(title: Text("Error"), message: Text(shareErrorMessage))
+                        })
+                            
+                        Button(action: {
+                            self.reportConfirmationAlertShow = true
+                            self.reportAlertShow = false
+                        }, label: {
+                            HStack{
+                                Image(systemName: "exclamationmark.bubble")
+                                    .font(.system(size: 22))
+                                Text("Report")
+                                    .fontWeight(.semibold)
+                            }
+                        })
+                        .foregroundColor(.primary)
+                        .offset(x: 20, y: 0)
+                        .alert(isPresented: $reportConfirmationAlertShow, content: {
+                            if (reportAlertShow){
+                                return Alert(title: Text("Report"), message: Text(reportMessage))
+                            } else {
+                                return Alert(
+                                    title: Text("Are you sure?"),
+                                    message: Text("Do you really want to report this post?"),
+                                    primaryButton: .destructive(Text("Yes"), action: reportPost),
+                                    secondaryButton: .cancel(Text("No"))
+                                )
+                            }
+                        })
+                    }
+                    .padding()
+                    .frame(width: metrics.size.width, height: 40, alignment: .leading)
+        
+                    Spacer(minLength: 10)
+                    Divider()
                 }
-                .frame(width: metrics.width, height: 40, alignment: .leading)
-                .padding()
-                
-                Spacer(minLength: 10)
-                Divider()
             }
+            .frame(height: metrics.size.height + 100)
         }
-        .frame(height: metrics.height)
         .onChange(of: post.image, perform: { value in
             initNewImage(image: value)
         })
@@ -248,6 +249,6 @@ struct PostView: View {
 
 struct PostView_Previews: PreviewProvider {
     static var previews: some View {
-        PostView(post: Post(text: "Post"), metrics: CGSize(width: 450, height: 1600), selectedMode: "NORMAL")
+        PostView(post: Post(text: "Post"), selectedMode: "NORMAL")
     }
 }

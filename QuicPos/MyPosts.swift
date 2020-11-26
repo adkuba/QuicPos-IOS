@@ -32,6 +32,14 @@ struct MyPosts: View {
                 }
             }
         }
+        .toolbar(content: {
+            ToolbarItem(placement: .bottomBar){
+                Text(String(posts.count) + " posts")
+                    .font(.system(size: 12))
+                    .foregroundColor(.gray)
+            }
+        })
+        .navigationBarTitle("Saved", displayMode: .inline)
         .onAppear(perform: {
             self.postsids = UserDefaults.standard.stringArray(forKey: "myposts") ?? [String]()
             getPosts()
