@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8C0BE03E257160D1001701A2 /* PostViewContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C0BE03D257160D1001701A2 /* PostViewContainer.swift */; };
 		8C412CAB253441A500C7FC51 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C412CAA253441A500C7FC51 /* ImagePicker.swift */; };
 		8C6C8792252C569800D4D042 /* PostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C6C8791252C569800D4D042 /* PostView.swift */; };
 		8C6C879A252F203C00D4D042 /* GetPost.graphql in Resources */ = {isa = PBXBuildFile; fileRef = 8C6C8799252F203B00D4D042 /* GetPost.graphql */; };
@@ -45,6 +46,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		8C0BE03D257160D1001701A2 /* PostViewContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostViewContainer.swift; sourceTree = "<group>"; };
 		8C412CAA253441A500C7FC51 /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
 		8C412CB22534487100C7FC51 /* CreatePost.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = CreatePost.graphql; sourceTree = "<group>"; };
 		8C6C8791252C569800D4D042 /* PostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostView.swift; sourceTree = "<group>"; };
@@ -148,6 +150,7 @@
 				8CB26C0B2565B7CD003ECB7E /* PostCard.swift */,
 				8CEC4EA42566974900F13FDC /* GetViewerPost.graphql */,
 				8CB7F3C3256B010400EFCA3B /* LinkedText.swift */,
+				8C0BE03D257160D1001701A2 /* PostViewContainer.swift */,
 			);
 			path = QuicPos;
 			sourceTree = "<group>";
@@ -347,6 +350,7 @@
 				8CB26C072565AEC7003ECB7E /* MyPosts.swift in Sources */,
 				8C6C8792252C569800D4D042 /* PostView.swift in Sources */,
 				8C6CC3852528CDB8005E6430 /* QuicPosApp.swift in Sources */,
+				8C0BE03E257160D1001701A2 /* PostViewContainer.swift in Sources */,
 				8CB26C0C2565B7CD003ECB7E /* PostCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

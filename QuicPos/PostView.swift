@@ -138,6 +138,7 @@ struct PostView: View {
                     Spacer(minLength: 10)
                     Divider()
                 }
+                Spacer(minLength: 100)
             }
             .frame(height: metrics.size.height + 100)
         }
@@ -174,8 +175,14 @@ struct PostView: View {
     func reportPost(){
         if (post.ID != nil){
             let objectID = post.ID!.components(separatedBy: "\"")
+            var id = ""
+            if objectID.count == 1 {
+                id = objectID[0]
+            } else {
+                id = objectID[1]
+            }
             Network.shared.apollo
-                .perform(mutation: ReportMutation(userID: userId, postID: objectID[1])) { result in
+                .perform(mutation: ReportMutation(userID: userId, postID: id)) { result in
                     switch result {
                     case .success(let graphQLResult):
                         if let reportConnection = graphQLResult.data?.report {
@@ -201,11 +208,16 @@ struct PostView: View {
         var errorMessage = ""
         if (post.ID != nil){
             let objectID = post.ID!.components(separatedBy: "\"")
-            let url = "https://www.quicpos.com/post/" + objectID[1]
+            var url = "https://www.quicpos.com/post/"
+            if objectID.count == 1 {
+                url += objectID[0]
+            } else {
+                url += objectID[1]
+            }
             let data = AppValues()
             
             Network.shared.apollo
-                .perform(mutation: ShareMutation(userID: userId, postID: objectID[1], password: data.password)) { result in
+                .perform(mutation: ShareMutation(userID: userId, postID: url, password: data.password)) { result in
                     switch result {
                     case .success(let graphQLResult):
                         if let shareConnection = graphQLResult.data?.share {
