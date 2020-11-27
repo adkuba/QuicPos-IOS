@@ -30,6 +30,8 @@ struct PostView: View {
     @State var displayImage = false
     @State var timer = Timer.publish(every: 0.6, on: .main, in: .common).autoconnect()
     @State var blurValue = CGFloat(0)
+    @State var showingSheet = false
+    @State var url = ""
     
     @State var shareErrorMessage = ""
     @State var shareAlertShow = false
@@ -85,6 +87,8 @@ struct PostView: View {
                         .foregroundColor(.gray)
                         .padding()
                         .frame(width: metrics.size.width, height: 17, alignment: .leading)
+                        .padding(.bottom, 10)
+                    
                         
                     //action section
                     HStack{
@@ -138,6 +142,7 @@ struct PostView: View {
                     Spacer(minLength: 10)
                     Divider()
                 }
+                Spacer(minLength: 100)
             }
             .frame(height: metrics.size.height + 100)
         }
@@ -169,6 +174,9 @@ struct PostView: View {
             }
             initNewImage(image: post.image)
         })
+        .sheet(isPresented: $showingSheet) {
+            ActivityView(activityItems: [NSURL(string: url)!] as [Any], applicationActivities: nil)
+        }
     }
     
     func reportPost(){
@@ -201,7 +209,11 @@ struct PostView: View {
         var errorMessage = ""
         if (post.ID != nil){
             let objectID = post.ID!.components(separatedBy: "\"")
-            let url = "https://www.quicpos.com/post/" + objectID[1]
+            if objectID.count == 1 {
+                self.url = "https://www.quicpos.com/post/" + objectID[0]
+            } else {
+                self.url = "https://www.quicpos.com/post/" + objectID[1]
+            }
             let data = AppValues()
             
             Network.shared.apollo
@@ -210,9 +222,7 @@ struct PostView: View {
                     case .success(let graphQLResult):
                         if let shareConnection = graphQLResult.data?.share {
                             if (shareConnection) {
-                                let data = URL(string: url)!
-                                let av = UIActivityViewController(activityItems: [data], applicationActivities: nil)
-                                UIApplication.shared.windows.first?.rootViewController?.present(av, animated: true, completion: nil)
+                                self.showingSheet = true
                                 
                                 var postids = UserDefaults.standard.stringArray(forKey: "myposts") ?? [String]()
                                 if !postids.contains(objectID[1]) {

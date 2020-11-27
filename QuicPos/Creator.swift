@@ -7,16 +7,22 @@
 
 import SwiftUI
 
+enum ActiveSheet {
+   case first, second
+}
+
 struct Creator: View {
     
     @ObservedObject private var keyboard = KeyboardResponder()
     @State var newText = ""
-    @State var isShowPhotoLibrary = false
+    @State private var activeSheet: ActiveSheet = .first
     @State var image = UIImage()
     @State var userId = UserDefaults.standard.integer(forKey: "userId")
     @State var displayAlert = false
     @State var alertMessage = ""
     @State var sending = false
+    @State var showingSheet = false
+    @State var url = ""
     
     var body: some View {
         GeometryReader { metrics in
@@ -54,7 +60,8 @@ struct Creator: View {
                 HStack{
                     Button(action: {
                         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                        self.isShowPhotoLibrary = true
+                        self.showingSheet = true
+                        self.activeSheet = .first
                     }) {
                         Image(systemName: "photo")
                             .font(.system(size: 20))
@@ -97,7 +104,8 @@ struct Creator: View {
             ToolbarItem(placement: .bottomBar){
                 Button(action: {
                     UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                    self.isShowPhotoLibrary = true
+                    self.showingSheet = true
+                    self.activeSheet = .first
                 }) {
                     Image(systemName: "photo")
                         .font(.system(size: 20))
@@ -116,8 +124,20 @@ struct Creator: View {
             }
         })
         .navigationBarTitle("Create", displayMode: .inline)
-        .sheet(isPresented: $isShowPhotoLibrary) {
-            ImagePicker(sourceType: .photoLibrary, selectedImage: self.$image)
+        .navigationBarItems(trailing:
+                                NavigationLink(
+                                    destination: Home(),
+                                    label: {
+                                        Text("Cancel")
+                                })
+                                .opacity(UIDevice.current.userInterfaceIdiom == .pad ? 1 : 0)
+        )
+        .sheet(isPresented: $showingSheet) {
+            if self.activeSheet == .first {
+                ImagePicker(sourceType: .photoLibrary, selectedImage: self.$image)
+            } else {
+                ActivityView(activityItems: [NSURL(string: url)!] as [Any], applicationActivities: nil)
+            }
         }
     }
     
@@ -142,10 +162,9 @@ struct Creator: View {
                         self.newText = ""
                         self.image = UIImage()
                         let objectID = postConnection.id.components(separatedBy: "\"")
-                        let url = "https://www.quicpos.com/post/" + objectID[1]
-                        let data = URL(string: url)!
-                        let av = UIActivityViewController(activityItems: [data], applicationActivities: nil)
-                        UIApplication.shared.windows.first?.rootViewController?.present(av, animated: true, completion: nil)
+                        self.url = "https://www.quicpos.com/post/" + objectID[1]
+                        self.showingSheet = true
+                        self.activeSheet = .second
                         
                         var postids = UserDefaults.standard.stringArray(forKey: "myposts") ?? [String]()
                         if !postids.contains(objectID[1]) {
@@ -198,5 +217,22 @@ final class KeyboardResponder: ObservableObject {
 
     @objc func keyBoardWillHide(notification: Notification) {
         currentHeight = 0
+    }
+}
+
+
+struct ActivityView: UIViewControllerRepresentable {
+
+    let activityItems: [Any]
+    let applicationActivities: [UIActivity]?
+
+    func makeUIViewController(context: UIViewControllerRepresentableContext<ActivityView>) -> UIActivityViewController {
+    return UIActivityViewController(activityItems: activityItems,
+                                    applicationActivities: applicationActivities)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController,
+                                context: UIViewControllerRepresentableContext<ActivityView>) {
+
     }
 }

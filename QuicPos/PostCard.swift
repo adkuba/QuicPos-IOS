@@ -20,7 +20,7 @@ struct PostCard: View {
         VStack{
             Spacer(minLength: 40)
             NavigationLink(
-                destination: PostView(post: post, selectedMode: "NORMAL"),
+                destination: PostViewContainer(post: post),
                 label: {
                     VStack{
                         Text(post.text)

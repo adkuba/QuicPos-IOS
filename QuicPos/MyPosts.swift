@@ -34,9 +34,15 @@ struct MyPosts: View {
         }
         .toolbar(content: {
             ToolbarItem(placement: .bottomBar){
+                Spacer()
+            }
+            ToolbarItem(placement: .bottomBar){
                 Text(String(posts.count) + " posts")
                     .font(.system(size: 12))
                     .foregroundColor(.gray)
+            }
+            ToolbarItem(placement: .bottomBar){
+                Spacer()
             }
         })
         .navigationBarTitle("Saved", displayMode: .inline)
