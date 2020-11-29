@@ -115,6 +115,14 @@ struct Creator: View {
                 Spacer()
             }
             ToolbarItem(placement: .bottomBar){
+                Text("User @" + String(userId))
+                    .font(.system(size: 12))
+                    .foregroundColor(.gray)
+            }
+            ToolbarItem(placement: .bottomBar){
+                Spacer()
+            }
+            ToolbarItem(placement: .bottomBar){
                 Button(action: {
                     createPost()
                 }, label: {
@@ -124,14 +132,6 @@ struct Creator: View {
             }
         })
         .navigationBarTitle("Create", displayMode: .inline)
-        .navigationBarItems(trailing:
-                                NavigationLink(
-                                    destination: Home(),
-                                    label: {
-                                        Text("Cancel")
-                                })
-                                .opacity(UIDevice.current.userInterfaceIdiom == .pad ? 1 : 0)
-        )
         .sheet(isPresented: $showingSheet) {
             if self.activeSheet == .first {
                 ImagePicker(sourceType: .photoLibrary, selectedImage: self.$image)

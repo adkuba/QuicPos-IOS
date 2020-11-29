@@ -14,17 +14,28 @@ struct AppValues {
 struct ContentView: View {
     
     var body: some View {
-        NavigationView {
-            /*
-             Stworzyć osobnego brancha z tych commitów - to będzie wersja na iPada
-             Bo jak przerobiłem na iPada to wszystko się rozjebało na iPhona
-             */
-             
-            if UIDevice.current.userInterfaceIdiom == .pad {
-                MyPosts()
+        switch UIDevice.current.userInterfaceIdiom {
+        case .phone:
+            NavigationView{
+                Home()
             }
-            
-            Home()
+            .navigationViewStyle(StackNavigationViewStyle())
+        case .pad:
+            NavigationView{
+                MyPosts()
+                Home()
+            }
+            .navigationViewStyle(DoubleColumnNavigationViewStyle())
+        case .tv:
+            Text("TV not supported")
+        case .carPlay:
+            Text("Car play unsupported!")
+        case .mac:
+            Text("Mac not supported!")
+        case .unspecified:
+            Text("Unspecified device!")
+        @unknown default:
+            Text("Unknown device!")
         }
     }
 }

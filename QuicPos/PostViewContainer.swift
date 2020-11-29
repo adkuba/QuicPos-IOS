@@ -13,6 +13,7 @@ struct PostViewContainer: View {
     
     var body: some View {
         PostView(post: post, selectedMode: "NORMAL")
+            .navigationBarTitle("Post", displayMode: .inline)
             .toolbar(content: {
                 ToolbarItem(placement: .bottomBar){
                     Spacer()
@@ -26,15 +27,6 @@ struct PostViewContainer: View {
                     Spacer()
                 }
             })
-            .navigationBarTitle("Post", displayMode: .inline)
-            .navigationBarItems(trailing:
-                                    NavigationLink(
-                                        destination: Home(),
-                                        label: {
-                                            Text("Cancel")
-                                    })
-                                    .opacity(UIDevice.current.userInterfaceIdiom == .pad ? 1 : 0)
-            )
     }
 }
 

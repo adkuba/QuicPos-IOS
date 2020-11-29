@@ -175,15 +175,21 @@ struct PostView: View {
             initNewImage(image: post.image)
         })
         .sheet(isPresented: $showingSheet) {
-            ActivityView(activityItems: [NSURL(string: url)!] as [Any], applicationActivities: nil)
+            ActivityView(activityItems: [NSURL(string: "https://www.quicpos.com/post/" + url)!] as [Any], applicationActivities: nil)
         }
     }
     
     func reportPost(){
         if (post.ID != nil){
             let objectID = post.ID!.components(separatedBy: "\"")
+            var id = ""
+            if objectID.count == 1 {
+                id = objectID[0]
+            } else {
+                id = objectID[1]
+            }
             Network.shared.apollo
-                .perform(mutation: ReportMutation(userID: userId, postID: objectID[1])) { result in
+                .perform(mutation: ReportMutation(userID: userId, postID: id)) { result in
                     switch result {
                     case .success(let graphQLResult):
                         if let reportConnection = graphQLResult.data?.report {
@@ -209,24 +215,26 @@ struct PostView: View {
         var errorMessage = ""
         if (post.ID != nil){
             let objectID = post.ID!.components(separatedBy: "\"")
+            var id = ""
             if objectID.count == 1 {
-                self.url = "https://www.quicpos.com/post/" + objectID[0]
+                id = objectID[0]
             } else {
-                self.url = "https://www.quicpos.com/post/" + objectID[1]
+                id = objectID[1]
             }
             let data = AppValues()
             
             Network.shared.apollo
-                .perform(mutation: ShareMutation(userID: userId, postID: objectID[1], password: data.password)) { result in
+                .perform(mutation: ShareMutation(userID: userId, postID: id, password: data.password)) { result in
                     switch result {
                     case .success(let graphQLResult):
                         if let shareConnection = graphQLResult.data?.share {
                             if (shareConnection) {
+                                self.url = id
                                 self.showingSheet = true
                                 
                                 var postids = UserDefaults.standard.stringArray(forKey: "myposts") ?? [String]()
-                                if !postids.contains(objectID[1]) {
-                                    postids.append(objectID[1])
+                                if !postids.contains(id) {
+                                    postids.append(id)
                                     UserDefaults.standard.set(postids, forKey: "myposts")
                                 }
                             } else {

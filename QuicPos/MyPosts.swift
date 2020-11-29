@@ -45,7 +45,14 @@ struct MyPosts: View {
                 Spacer()
             }
         })
-        .navigationBarTitle("Saved", displayMode: .inline)
+        .navigationBarTitle("Saved", displayMode: UIDevice.current.userInterfaceIdiom == .pad ? .automatic : .inline)
+        .navigationBarItems(trailing:
+                                NavigationLink(
+                                    destination: Home(),
+                                    label: {
+                                        Image(systemName: "house")
+                                })
+                                .opacity(UIDevice.current.userInterfaceIdiom == .pad ? 1 : 0))
         .onAppear(perform: {
             self.postsids = UserDefaults.standard.stringArray(forKey: "myposts") ?? [String]()
             getPosts()
