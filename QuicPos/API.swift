@@ -184,8 +184,8 @@ public final class GetPostQuery: GraphQLQuery {
   /// The raw GraphQL definition of this operation.
   public let operationDefinition: String =
     """
-    query GetPost($userID: Int!, $normalMode: Boolean!, $password: String!) {
-      post(userId: $userID, normalMode: $normalMode, password: $password) {
+    query GetPost($userID: Int!, $normalMode: Boolean!, $password: String!, $ad: Boolean!) {
+      post(userId: $userID, normalMode: $normalMode, password: $password, ad: $ad) {
         __typename
         ID
         text
@@ -204,15 +204,17 @@ public final class GetPostQuery: GraphQLQuery {
   public var userID: Int
   public var normalMode: Bool
   public var password: String
+  public var ad: Bool
 
-  public init(userID: Int, normalMode: Bool, password: String) {
+  public init(userID: Int, normalMode: Bool, password: String, ad: Bool) {
     self.userID = userID
     self.normalMode = normalMode
     self.password = password
+    self.ad = ad
   }
 
   public var variables: GraphQLMap? {
-    return ["userID": userID, "normalMode": normalMode, "password": password]
+    return ["userID": userID, "normalMode": normalMode, "password": password, "ad": ad]
   }
 
   public struct Data: GraphQLSelectionSet {
@@ -220,7 +222,7 @@ public final class GetPostQuery: GraphQLQuery {
 
     public static var selections: [GraphQLSelection] {
       return [
-        GraphQLField("post", arguments: ["userId": GraphQLVariable("userID"), "normalMode": GraphQLVariable("normalMode"), "password": GraphQLVariable("password")], type: .nonNull(.object(Post.selections))),
+        GraphQLField("post", arguments: ["userId": GraphQLVariable("userID"), "normalMode": GraphQLVariable("normalMode"), "password": GraphQLVariable("password"), "ad": GraphQLVariable("ad")], type: .nonNull(.object(Post.selections))),
       ]
     }
 

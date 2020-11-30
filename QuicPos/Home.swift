@@ -19,6 +19,7 @@ struct Home: View {
     @State var viewError = ""
     @State var viewAlertShow = false
     @State var index = 0
+    @State var adCounter = -2
     
     @State var showMyPosts = false
     @State var modeAlert = false
@@ -251,9 +252,13 @@ struct Home: View {
             normalMode = false
         }
         let data = AppValues()
+        var ad = false
+        if adCounter % 20 == 0 {
+            ad = true
+        }
         
         Network.shared.apollo
-            .fetch(query: GetPostQuery(userID: userId, normalMode: normalMode, password: data.password), cachePolicy: .fetchIgnoringCacheCompletely) { result in
+            .fetch(query: GetPostQuery(userID: userId, normalMode: normalMode, password: data.password, ad: ad), cachePolicy: .fetchIgnoringCacheCompletely) { result in
                 var index = posts.count-1
                 if posts[posts.count-2].ID == nil{
                     index = posts.count-2
@@ -261,6 +266,7 @@ struct Home: View {
                 switch result {
                 case .success(let graphQLResult):
                     if let postConnection = graphQLResult.data?.post {
+                        self.adCounter += 1
                         self.posts[index] = Post(
                             ID: postConnection.id,
                             text: postConnection.text,
@@ -268,7 +274,8 @@ struct Home: View {
                             image: postConnection.image,
                             shares: postConnection.shares,
                             views: postConnection.views,
-                            creationTime: postConnection.creationTime
+                            creationTime: postConnection.creationTime,
+                            ad: ad
                         )
                         startTimer()
                     }

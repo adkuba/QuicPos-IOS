@@ -17,6 +17,7 @@ struct Post {
     var creationTime: String?
     var loading: Bool?
     var blocked: Bool?
+    var ad: Bool?
 }
 
 struct PostView: View {
@@ -46,7 +47,7 @@ struct PostView: View {
                 VStack{
                     //id
                     Spacer(minLength: 30)
-                    Text("User @" + String(post.userid ?? -1))
+                    Text(((post.ad ?? false) ? "Promoted @" : "User @") + String(post.userid ?? -1))
                         .font(.system(size: 15))
                         .foregroundColor(.gray)
                         .padding()
