@@ -1,8 +1,8 @@
 # QuicPos-IOS
 QuicPos client IOS application. SwiftUI
 
-## App notes
-App needs to check if userId is not null during post downloading. Display post get error if there is no internet connection!
+## SwiftUI
+W Swift UI mamy widoki - są to jakby views na frontendzie - osobne strony. Widoki moga być również komponentami - możemy je wykorzystywać wiele razy w innych widokach. Modyfikacje tych widoków prawie jak w css takimi atrybutami. Aby przechodzić między stronami mamy Navigation View albo np Tab View. Ciekawy opis SwiftUI [opis](https://fuckingswiftui.com)
 
 ## XCode-Swift notes
 - Sometimes you need to log in again to Apple account: Xcode -> Preference -> Accounts
