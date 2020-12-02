@@ -8,6 +8,7 @@ W Swift UI mamy widoki - są to jakby views na frontendzie - osobne strony. Wido
 - Sometimes you need to log in again to Apple account: Xcode -> Preference -> Accounts
 - Im using SwiftUI [great tutorial](https://developer.apple.com/tutorials/swiftui/composing-complex-interfaces), **it's all based on views like components in Vue, you combine them and switch between**
 - QuicPosApp.swift is like in SpringBoot main function that starts app (?)
+- Miałem ostatnio taki bug że strasznie wolno włączała mi się aplikacja na telefonie. Wystarczyło usunąć foldery w <code>/Users/kuba/Library/Developer/Xcode</code> oraz ponownie uruchomić aplikację.
 
 ## Apollo usage
 - download schema from your QraphQL server [tutorial](https://www.apollographql.com/docs/ios/tutorial/tutorial-obtain-schema/) -> project settings - target - build phases - (add ApolloCLI build phase)
