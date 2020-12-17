@@ -95,7 +95,7 @@ struct Creator: View {
             //$ to jest binding
             .alert(isPresented: $displayAlert, content: {
                 Alert(
-                    title: Text("Result"),
+                    title: Text("Info"),
                     message: Text(alertMessage),
                     dismissButton: .default(Text("OK")))
             })
@@ -151,6 +151,20 @@ struct Creator: View {
     }
     
     func createPost(){
+        
+        if newText == "" {
+            self.alertMessage = "Type text!"
+            self.displayAlert = true
+            return
+        }
+        
+        if userId == 0 {
+            self.alertMessage = "Bad user ID, reset app?"
+            self.displayAlert = true
+            return
+        }
+        
+        self.alertMessage = ""
         self.sending = true
         let data = AppValues()
         

@@ -700,7 +700,7 @@ public final class ViewMutation: GraphQLMutation {
   /// The raw GraphQL definition of this operation.
   public let operationDefinition: String =
     """
-    mutation View($userID: Int!, $postID: String!, $time: Float!, $device: Int!, $password: String!) {
+    mutation View($userID: Int!, $postID: String!, $time: Float!, $device: String!, $password: String!) {
       view(input: {postID: $postID, userId: $userID, time: $time, deviceDetails: $device}, password: $password)
     }
     """
@@ -710,10 +710,10 @@ public final class ViewMutation: GraphQLMutation {
   public var userID: Int
   public var postID: String
   public var time: Double
-  public var device: Int
+  public var device: String
   public var password: String
 
-  public init(userID: Int, postID: String, time: Double, device: Int, password: String) {
+  public init(userID: Int, postID: String, time: Double, device: String, password: String) {
     self.userID = userID
     self.postID = postID
     self.time = time

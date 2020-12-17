@@ -19,6 +19,7 @@ struct Home: View {
     @State var viewError = ""
     @State var viewAlertShow = false
     @State var index = 0
+    @State var deviceName = ""
     @State var adCounter = -2
     
     @State var showMyPosts = false
@@ -106,7 +107,9 @@ struct Home: View {
             }
         })
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
-            pauseTimer()
+            if index == posts.count-2{
+                pauseTimer()
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
             resumeTimer()
@@ -160,38 +163,27 @@ struct Home: View {
             }
             getPost()
             self.index = posts.count-2
+            startTimer()
         }
     }
     
     //APPLE DEVICE ID
     func machineName() -> String {
-      var systemInfo = utsname()
-      uname(&systemInfo)
-      let machineMirror = Mirror(reflecting: systemInfo.machine)
-      return machineMirror.children.reduce("") { identifier, element in
-        guard let value = element.value as? Int8, value != 0 else { return identifier }
-        return identifier + String(UnicodeScalar(UInt8(value)))
-      }
+        var systemInfo = utsname()
+        uname(&systemInfo)
+        let machineMirror = Mirror(reflecting: systemInfo.machine)
+        return machineMirror.children.reduce("") { identifier, element in
+            guard let value = element.value as? Int8, value != 0 else { return identifier }
+            return identifier + String(UnicodeScalar(UInt8(value)))
+        }
     }
     
     //DEVICE ID FOR MY SERVER
-    func getDevice() -> Int {
-        let deviceString = machineName()
-        var device = 100000
-        if (deviceString.contains("iPhone")){
-            device += 1000
-        } else if (deviceString.contains("iPad")){
-            device += 2000
+    func getDevice() -> String {
+        if (deviceName == ""){
+            self.deviceName = machineName()
         }
-        var multiplication = 1
-        for ch in deviceString {
-            let value = Int(String(ch)) ?? 0
-            if value != 0 {
-                device += value * multiplication
-                multiplication *= 10
-            }
-        }
-        return device
+        return deviceName
     }
     
     func reportView(){
@@ -277,7 +269,9 @@ struct Home: View {
                             creationTime: postConnection.creationTime,
                             ad: ad
                         )
-                        startTimer()
+                        if (index == posts.count-2){
+                            startTimer()
+                        }
                     }
                     if let errors = graphQLResult.errors {
                         self.posts[index] = Post(text: errors

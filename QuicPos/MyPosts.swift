@@ -12,6 +12,7 @@ struct MyPosts: View {
     @State var postsids = UserDefaults.standard.stringArray(forKey: "myposts") ?? [String]()
     @State var userId = UserDefaults.standard.integer(forKey: "userId")
     @State var posts: [Post] = []
+    @State var postsNumber = 0
     
     var body: some View {
         GeometryReader{ metrics in
@@ -37,7 +38,7 @@ struct MyPosts: View {
                 Spacer()
             }
             ToolbarItem(placement: .bottomBar){
-                Text(String(posts.count) + " posts")
+                Text(String(postsNumber) + " posts")
                     .font(.system(size: 12))
                     .foregroundColor(.gray)
             }
@@ -55,6 +56,7 @@ struct MyPosts: View {
                                 .opacity(UIDevice.current.userInterfaceIdiom == .pad ? 1 : 0))
         .onAppear(perform: {
             self.postsids = UserDefaults.standard.stringArray(forKey: "myposts") ?? [String]()
+            self.postsNumber = postsids.count
             getPosts()
         })
     }
@@ -66,23 +68,27 @@ struct MyPosts: View {
             let dispatchSemaphore = DispatchSemaphore(value: 0)
             
             dispatchQueue.async {
+                var counter = 0
                 postsids.forEach { postid in
                     Network.shared.apollo
                         .fetch(query: GetViewerPostQuery(id: postid)){ result in
                             switch result {
                             case .success(let graphQLResult):
                                 if let postConnection = graphQLResult.data?.viewerPost {
-                                    self.posts.append(
-                                        Post(
-                                            ID: postid,
-                                            text: postConnection.text,
-                                            userid: postConnection.userId,
-                                            image: postConnection.image,
-                                            shares: postConnection.shares,
-                                            views: postConnection.views,
-                                            creationTime: postConnection.creationTime,
-                                            blocked: postConnection.blocked
-                                        ))
+                                    if postConnection.blocked == false && postConnection.text != "" {
+                                        counter += 1
+                                        self.posts.append(
+                                            Post(
+                                                ID: postid,
+                                                text: postConnection.text,
+                                                userid: postConnection.userId,
+                                                image: postConnection.image,
+                                                shares: postConnection.shares,
+                                                views: postConnection.views,
+                                                creationTime: postConnection.creationTime,
+                                                blocked: postConnection.blocked
+                                            ))
+                                    }
                                 }
                                 if let errors = graphQLResult.errors {
                                     self.posts.append(
@@ -104,6 +110,7 @@ struct MyPosts: View {
                         }
                     dispatchSemaphore.wait()
                 }
+                self.postsNumber = counter
             }
         }
     }
