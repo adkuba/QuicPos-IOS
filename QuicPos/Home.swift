@@ -11,6 +11,7 @@ struct Home: View {
     
     //state allows modification during self invoke
     @State var userId = UserDefaults.standard.integer(forKey: "userId")
+    @State var regulationsRead = UserDefaults.standard.bool(forKey: "regulations")
     @State var posts = [Post(text: "Loading...", loading: true), Post(text: "Loading...", loading: true)]
     @State var mode = "NORMAL"
     
@@ -24,6 +25,8 @@ struct Home: View {
     
     @State var showMyPosts = false
     @State var modeAlert = false
+    @State var regulationsAlert = false
+    @Environment(\.openURL) var openURL
     
     //DispatchGroup for async operations
     let group = DispatchGroup()
@@ -32,6 +35,17 @@ struct Home: View {
         VStack{
             //Post
             PostView(post: posts[index], selectedMode: mode)
+            
+            Spacer()
+                .alert(isPresented: $regulationsAlert, content: {
+                    Alert(
+                        title: Text("Regulations"),
+                        message: Text("By using QuicPos you agree to our regulations."),
+                        primaryButton: .cancel(Text("Ok")),
+                        secondaryButton: .default(Text("Read more")){
+                            openURL(URL(string: "https://www.quicpos.com#regulations")!)
+                        })
+                })
             
             Spacer()
                 .alert(isPresented: $viewAlertShow, content: {
@@ -116,6 +130,7 @@ struct Home: View {
         }
         .onAppear(perform: {
             saveUserId()
+            regulations()
             //group notify will run when enter() and leave() are balanced, waits for userId to be downloaded
             group.notify(queue: .main) {
                 getPost()
@@ -137,6 +152,13 @@ struct Home: View {
                     label: {
                         Image(systemName: "square.and.pencil")
                     }))
+    }
+    
+    func regulations() {
+        if !regulationsRead {
+            self.regulationsAlert = true
+            UserDefaults.standard.setValue(true, forKey: "regulations")
+        }
     }
     
     func prev() {
