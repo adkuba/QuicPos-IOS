@@ -158,6 +158,7 @@ struct Home: View {
         if !regulationsRead {
             self.regulationsAlert = true
             UserDefaults.standard.setValue(true, forKey: "regulations")
+            self.regulationsRead = true
         }
     }
     

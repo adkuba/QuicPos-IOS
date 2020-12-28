@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AppValues {
-    var password = "kuba"
+    var password = ""
 }
 
 struct ContentView: View {
