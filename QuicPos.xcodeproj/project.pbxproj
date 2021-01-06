@@ -48,6 +48,7 @@
 
 /* Begin PBXFileReference section */
 		8C0BE0272571450D001701A2 /* Home.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Home.swift; sourceTree = "<group>"; };
+		8C3C778425A5B051005F83D4 /* DeletePost.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = DeletePost.graphql; sourceTree = "<group>"; };
 		8C412CAA253441A500C7FC51 /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
 		8C412CB22534487100C7FC51 /* CreatePost.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = CreatePost.graphql; sourceTree = "<group>"; };
 		8C6C8791252C569800D4D042 /* PostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostView.swift; sourceTree = "<group>"; };
@@ -154,6 +155,7 @@
 				8CB7F3C3256B010400EFCA3B /* LinkedText.swift */,
 				8C92C7FB257049690064CF0D /* PostViewContainer.swift */,
 				8C0BE0272571450D001701A2 /* Home.swift */,
+				8C3C778425A5B051005F83D4 /* DeletePost.graphql */,
 			);
 			path = QuicPos;
 			sourceTree = "<group>";
@@ -523,7 +525,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = quicpos.QuicPos;
+				PRODUCT_BUNDLE_IDENTIFIER = com.quicpos.quicpos;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
@@ -547,7 +549,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = quicpos.QuicPos;
+				PRODUCT_BUNDLE_IDENTIFIER = com.quicpos.quicpos;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;

@@ -11,10 +11,15 @@ struct PostCard: View {
     
     var post: Post
     var metrics: CGSize
+    let onDelete: () -> Void
     
-    @State var userId = UserDefaults.standard.integer(forKey: "userId")
+    @State var userId = UserDefaults.standard.string(forKey: "user")
     @State @ObservedObject var imageLoader = ImageLoader(urlString: "")
     @State var image:UIImage = UIImage()
+    let data = AppValues()
+    
+    @State var removeMessage = ""
+    @State var removeAlert = false
     
     var body: some View {
         VStack{
@@ -26,6 +31,9 @@ struct PostCard: View {
                         Text(post.text)
                             .frame(width: metrics.width * 0.9, height: 17, alignment: .leading)
                             .foregroundColor(.primary)
+                            .alert(isPresented: $removeAlert, content: {
+                                Alert(title: Text("Delete"), message: Text(removeMessage))
+                            })
                         if (post.image ?? "") != "" {
                             Image(uiImage: image)
                                 .resizable()
@@ -38,15 +46,30 @@ struct PostCard: View {
                                 .cornerRadius(5)
                                 .padding(.top)
                         }
-                        if userId == (post.userid ?? -1) {
-                            Link("Promote post", destination: URL(string: "https://www.quicpos.com/pay/" + (post.ID ?? "error"))!)
-                                .font(.system(size: 15))
-                                .frame(width: metrics.width * 0.9, height: 17, alignment: .leading)
-                                .padding()
+                        if userId == (post.userid ?? "") {
+                            HStack{
+                                Link("Promote", destination: URL(string: "https://www.quicpos.com/pay/" + (post.ID ?? "error"))!)
+                                    .font(.system(size: 16))
+                                
+                                Spacer()
+                                    
+                                Button(action: {
+                                    deletePost(postID: post.ID ?? "")
+                                }, label: {
+                                    HStack{
+                                        Text("Delete")
+                                            .font(.system(size: 16))
+                                        
+                                        Image(systemName: "minus.circle.fill")
+                                            .foregroundColor(.red)
+                                    }
+                                })
+                            }
+                            .frame(width: metrics.width * 0.9, height: 17, alignment: .leading)
+                            .padding()
                         } else {
                             Link("Statistics", destination: URL(string: "https://www.quicpos.com/stats/" + (post.ID ?? "error"))!)
-                                .font(.system(size: 15))
-                                .foregroundColor(.gray)
+                                .font(.system(size: 16))
                                 .frame(width: metrics.width * 0.9, height: 17, alignment: .leading)
                                 .padding()
                         }
@@ -61,10 +84,32 @@ struct PostCard: View {
             }
         })
     }
+    
+    func deletePost(postID: String){
+        Network.shared.apollo
+            .perform(mutation: DeletePostMutation(postID: postID, userID: userId ?? "", password: data.password)) { result in
+                switch result {
+                case .success(let graphQLResult):
+                    if let deleteConnection = graphQLResult.data?.removePost {
+                        if (deleteConnection) {
+                            onDelete()
+                        } else {
+                            self.removeMessage = "Bad delete return! Contact us to resolve the issue."
+                        }
+                    }
+                    if let errors = graphQLResult.errors {
+                        self.removeMessage = errors.map { $0.localizedDescription }.joined(separator: "\n")
+                    }
+                case .failure(let error):
+                    self.removeMessage = error.localizedDescription
+                }
+                self.removeAlert = true
+            }
+    }
 }
 
 struct PostCard_Previews: PreviewProvider {
     static var previews: some View {
-        PostCard(post: Post(text: "Post"), metrics: CGSize(width: 450, height: 1600))
+        PostCard(post: Post(text: "Post"), metrics: CGSize(width: 450, height: 1600)){}
     }
 }

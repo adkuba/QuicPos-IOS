@@ -10,7 +10,7 @@ import SwiftUI
 struct Post {
     var ID: String?
     var text: String
-    var userid: Int?
+    var userid: String?
     var image: String?
     var shares: Int?
     var views: Int?
@@ -25,7 +25,7 @@ struct PostView: View {
     var post: Post
     var selectedMode: String
     
-    @State var userId = UserDefaults.standard.integer(forKey: "userId")
+    @State var userId = UserDefaults.standard.string(forKey: "user") ?? ""
     @State @ObservedObject var imageLoader = ImageLoader(urlString: "")
     @State var image:UIImage = UIImage()
     @State var displayImage = false
@@ -47,7 +47,7 @@ struct PostView: View {
                 VStack{
                     //id
                     Spacer(minLength: 30)
-                    Text(((post.ad ?? false) ? "Promoted @" : "User @") + String(post.userid ?? -1))
+                    Text(((post.ad ?? false) ? "Promoted @" : "User @") + (post.userid ?? "auto").prefix(4))
                         .font(.system(size: 15))
                         .foregroundColor(.gray)
                         .padding()

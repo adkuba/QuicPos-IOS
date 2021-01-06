@@ -19,7 +19,7 @@ struct PostViewContainer: View {
                     Spacer()
                 }
                 ToolbarItem(placement: .bottomBar){
-                    Text(post.ID ?? "")
+                    Text((post.ID ?? "").prefix(6))
                         .font(.system(size: 12))
                         .foregroundColor(.gray)
                 }

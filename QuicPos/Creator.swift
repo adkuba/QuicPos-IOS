@@ -17,7 +17,7 @@ struct Creator: View {
     @State var newText = ""
     @State private var activeSheet: ActiveSheet = .first
     @State var image = UIImage()
-    @State var userId = UserDefaults.standard.integer(forKey: "userId")
+    @State var userId = UserDefaults.standard.string(forKey: "user") ?? ""
     @State var displayAlert = false
     @State var alertMessage = ""
     @State var sending = false
@@ -74,7 +74,7 @@ struct Creator: View {
                         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                     }, label: {
                         Image(systemName: "keyboard.chevron.compact.down")
-                            .font(.system(size: 20))
+                            .font(.system(size: 19))
                     })
                     .padding()
                     
@@ -84,7 +84,7 @@ struct Creator: View {
                         createPost()
                     }, label: {
                         Image(systemName: "paperplane")
-                            .font(.system(size: 20))
+                            .font(.system(size: 19))
                     })
                     .padding()
                 }
@@ -100,6 +100,14 @@ struct Creator: View {
                     dismissButton: .default(Text("OK")))
             })
         }
+        .navigationBarItems(trailing:
+                                Button(action: {
+                                    self.alertMessage = userId + " your ID. Save it to delete posts after uninstall. Contact admin@tline.site"
+                                    self.displayAlert = true
+                                }, label: {
+                                    Image(systemName: "info.circle")
+                                        .font(.system(size: 19))
+                                }))
         .toolbar(content: {
             ToolbarItem(placement: .bottomBar){
                 Button(action: {
@@ -115,7 +123,7 @@ struct Creator: View {
                 Spacer()
             }
             ToolbarItem(placement: .bottomBar){
-                Text("User @" + String(userId))
+                Text("Create post")
                     .font(.system(size: 12))
                     .foregroundColor(.gray)
             }
@@ -158,7 +166,7 @@ struct Creator: View {
             return
         }
         
-        if userId == 0 {
+        if userId == "" {
             self.alertMessage = "Bad user ID, reset app?"
             self.displayAlert = true
             return

@@ -8,7 +8,7 @@ public final class CreatePostMutation: GraphQLMutation {
   /// The raw GraphQL definition of this operation.
   public let operationDefinition: String =
     """
-    mutation CreatePost($text: String!, $userId: Int!, $image: String!, $password: String!) {
+    mutation CreatePost($text: String!, $userId: String!, $image: String!, $password: String!) {
       createPost(input: {text: $text, userId: $userId, image: $image}, password: $password) {
         __typename
         ID
@@ -26,11 +26,11 @@ public final class CreatePostMutation: GraphQLMutation {
   public let operationName: String = "CreatePost"
 
   public var text: String
-  public var userId: Int
+  public var userId: String
   public var image: String
   public var password: String
 
-  public init(text: String, userId: Int, image: String, password: String) {
+  public init(text: String, userId: String, image: String, password: String) {
     self.text = text
     self.userId = userId
     self.image = image
@@ -77,7 +77,7 @@ public final class CreatePostMutation: GraphQLMutation {
           GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
           GraphQLField("ID", type: .nonNull(.scalar(String.self))),
           GraphQLField("text", type: .nonNull(.scalar(String.self))),
-          GraphQLField("userId", type: .nonNull(.scalar(Int.self))),
+          GraphQLField("userId", type: .nonNull(.scalar(String.self))),
           GraphQLField("shares", type: .nonNull(.scalar(Int.self))),
           GraphQLField("views", type: .nonNull(.scalar(Int.self))),
           GraphQLField("creationTime", type: .nonNull(.scalar(String.self))),
@@ -92,7 +92,7 @@ public final class CreatePostMutation: GraphQLMutation {
         self.resultMap = unsafeResultMap
       }
 
-      public init(id: String, text: String, userId: Int, shares: Int, views: Int, creationTime: String, initialReview: Bool, image: String) {
+      public init(id: String, text: String, userId: String, shares: Int, views: Int, creationTime: String, initialReview: Bool, image: String) {
         self.init(unsafeResultMap: ["__typename": "PostOut", "ID": id, "text": text, "userId": userId, "shares": shares, "views": views, "creationTime": creationTime, "initialReview": initialReview, "image": image])
       }
 
@@ -123,9 +123,9 @@ public final class CreatePostMutation: GraphQLMutation {
         }
       }
 
-      public var userId: Int {
+      public var userId: String {
         get {
-          return resultMap["userId"]! as! Int
+          return resultMap["userId"]! as! String
         }
         set {
           resultMap.updateValue(newValue, forKey: "userId")
@@ -180,11 +180,66 @@ public final class CreatePostMutation: GraphQLMutation {
   }
 }
 
+public final class DeletePostMutation: GraphQLMutation {
+  /// The raw GraphQL definition of this operation.
+  public let operationDefinition: String =
+    """
+    mutation DeletePost($postID: String!, $userID: String!, $password: String!) {
+      removePost(input: {postID: $postID, userID: $userID}, password: $password)
+    }
+    """
+
+  public let operationName: String = "DeletePost"
+
+  public var postID: String
+  public var userID: String
+  public var password: String
+
+  public init(postID: String, userID: String, password: String) {
+    self.postID = postID
+    self.userID = userID
+    self.password = password
+  }
+
+  public var variables: GraphQLMap? {
+    return ["postID": postID, "userID": userID, "password": password]
+  }
+
+  public struct Data: GraphQLSelectionSet {
+    public static let possibleTypes: [String] = ["Mutation"]
+
+    public static var selections: [GraphQLSelection] {
+      return [
+        GraphQLField("removePost", arguments: ["input": ["postID": GraphQLVariable("postID"), "userID": GraphQLVariable("userID")], "password": GraphQLVariable("password")], type: .nonNull(.scalar(Bool.self))),
+      ]
+    }
+
+    public private(set) var resultMap: ResultMap
+
+    public init(unsafeResultMap: ResultMap) {
+      self.resultMap = unsafeResultMap
+    }
+
+    public init(removePost: Bool) {
+      self.init(unsafeResultMap: ["__typename": "Mutation", "removePost": removePost])
+    }
+
+    public var removePost: Bool {
+      get {
+        return resultMap["removePost"]! as! Bool
+      }
+      set {
+        resultMap.updateValue(newValue, forKey: "removePost")
+      }
+    }
+  }
+}
+
 public final class GetPostQuery: GraphQLQuery {
   /// The raw GraphQL definition of this operation.
   public let operationDefinition: String =
     """
-    query GetPost($userID: Int!, $normalMode: Boolean!, $password: String!, $ad: Boolean!) {
+    query GetPost($userID: String!, $normalMode: Boolean!, $password: String!, $ad: Boolean!) {
       post(userId: $userID, normalMode: $normalMode, password: $password, ad: $ad) {
         __typename
         ID
@@ -201,12 +256,12 @@ public final class GetPostQuery: GraphQLQuery {
 
   public let operationName: String = "GetPost"
 
-  public var userID: Int
+  public var userID: String
   public var normalMode: Bool
   public var password: String
   public var ad: Bool
 
-  public init(userID: Int, normalMode: Bool, password: String, ad: Bool) {
+  public init(userID: String, normalMode: Bool, password: String, ad: Bool) {
     self.userID = userID
     self.normalMode = normalMode
     self.password = password
@@ -253,7 +308,7 @@ public final class GetPostQuery: GraphQLQuery {
           GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
           GraphQLField("ID", type: .nonNull(.scalar(String.self))),
           GraphQLField("text", type: .nonNull(.scalar(String.self))),
-          GraphQLField("userId", type: .nonNull(.scalar(Int.self))),
+          GraphQLField("userId", type: .nonNull(.scalar(String.self))),
           GraphQLField("shares", type: .nonNull(.scalar(Int.self))),
           GraphQLField("views", type: .nonNull(.scalar(Int.self))),
           GraphQLField("creationTime", type: .nonNull(.scalar(String.self))),
@@ -268,7 +323,7 @@ public final class GetPostQuery: GraphQLQuery {
         self.resultMap = unsafeResultMap
       }
 
-      public init(id: String, text: String, userId: Int, shares: Int, views: Int, creationTime: String, initialReview: Bool, image: String) {
+      public init(id: String, text: String, userId: String, shares: Int, views: Int, creationTime: String, initialReview: Bool, image: String) {
         self.init(unsafeResultMap: ["__typename": "PostOut", "ID": id, "text": text, "userId": userId, "shares": shares, "views": views, "creationTime": creationTime, "initialReview": initialReview, "image": image])
       }
 
@@ -299,9 +354,9 @@ public final class GetPostQuery: GraphQLQuery {
         }
       }
 
-      public var userId: Int {
+      public var userId: String {
         get {
-          return resultMap["userId"]! as! Int
+          return resultMap["userId"]! as! String
         }
         set {
           resultMap.updateValue(newValue, forKey: "userId")
@@ -382,7 +437,7 @@ public final class GetUserQuery: GraphQLQuery {
 
     public static var selections: [GraphQLSelection] {
       return [
-        GraphQLField("createUser", arguments: ["password": GraphQLVariable("password")], type: .nonNull(.scalar(Int.self))),
+        GraphQLField("createUser", arguments: ["password": GraphQLVariable("password")], type: .nonNull(.scalar(String.self))),
       ]
     }
 
@@ -392,13 +447,13 @@ public final class GetUserQuery: GraphQLQuery {
       self.resultMap = unsafeResultMap
     }
 
-    public init(createUser: Int) {
+    public init(createUser: String) {
       self.init(unsafeResultMap: ["__typename": "Query", "createUser": createUser])
     }
 
-    public var createUser: Int {
+    public var createUser: String {
       get {
-        return resultMap["createUser"]! as! Int
+        return resultMap["createUser"]! as! String
       }
       set {
         resultMap.updateValue(newValue, forKey: "createUser")
@@ -475,7 +530,7 @@ public final class GetViewerPostQuery: GraphQLQuery {
           GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
           GraphQLField("ID", type: .nonNull(.scalar(String.self))),
           GraphQLField("text", type: .nonNull(.scalar(String.self))),
-          GraphQLField("userId", type: .nonNull(.scalar(Int.self))),
+          GraphQLField("userId", type: .nonNull(.scalar(String.self))),
           GraphQLField("shares", type: .nonNull(.scalar(Int.self))),
           GraphQLField("views", type: .nonNull(.scalar(Int.self))),
           GraphQLField("creationTime", type: .nonNull(.scalar(String.self))),
@@ -491,7 +546,7 @@ public final class GetViewerPostQuery: GraphQLQuery {
         self.resultMap = unsafeResultMap
       }
 
-      public init(id: String, text: String, userId: Int, shares: Int, views: Int, creationTime: String, initialReview: Bool, image: String, blocked: Bool) {
+      public init(id: String, text: String, userId: String, shares: Int, views: Int, creationTime: String, initialReview: Bool, image: String, blocked: Bool) {
         self.init(unsafeResultMap: ["__typename": "PostOut", "ID": id, "text": text, "userId": userId, "shares": shares, "views": views, "creationTime": creationTime, "initialReview": initialReview, "image": image, "blocked": blocked])
       }
 
@@ -522,9 +577,9 @@ public final class GetViewerPostQuery: GraphQLQuery {
         }
       }
 
-      public var userId: Int {
+      public var userId: String {
         get {
-          return resultMap["userId"]! as! Int
+          return resultMap["userId"]! as! String
         }
         set {
           resultMap.updateValue(newValue, forKey: "userId")
@@ -592,17 +647,17 @@ public final class ReportMutation: GraphQLMutation {
   /// The raw GraphQL definition of this operation.
   public let operationDefinition: String =
     """
-    mutation Report($userID: Int!, $postID: String!) {
+    mutation Report($userID: String!, $postID: String!) {
       report(input: {userID: $userID, postID: $postID})
     }
     """
 
   public let operationName: String = "Report"
 
-  public var userID: Int
+  public var userID: String
   public var postID: String
 
-  public init(userID: Int, postID: String) {
+  public init(userID: String, postID: String) {
     self.userID = userID
     self.postID = postID
   }
@@ -645,18 +700,18 @@ public final class ShareMutation: GraphQLMutation {
   /// The raw GraphQL definition of this operation.
   public let operationDefinition: String =
     """
-    mutation Share($userID: Int!, $postID: String!, $password: String!) {
+    mutation Share($userID: String!, $postID: String!, $password: String!) {
       share(input: {userID: $userID, postID: $postID}, password: $password)
     }
     """
 
   public let operationName: String = "Share"
 
-  public var userID: Int
+  public var userID: String
   public var postID: String
   public var password: String
 
-  public init(userID: Int, postID: String, password: String) {
+  public init(userID: String, postID: String, password: String) {
     self.userID = userID
     self.postID = postID
     self.password = password
@@ -700,20 +755,20 @@ public final class ViewMutation: GraphQLMutation {
   /// The raw GraphQL definition of this operation.
   public let operationDefinition: String =
     """
-    mutation View($userID: Int!, $postID: String!, $time: Float!, $device: String!, $password: String!) {
+    mutation View($userID: String!, $postID: String!, $time: Float!, $device: String!, $password: String!) {
       view(input: {postID: $postID, userId: $userID, time: $time, deviceDetails: $device}, password: $password)
     }
     """
 
   public let operationName: String = "View"
 
-  public var userID: Int
+  public var userID: String
   public var postID: String
   public var time: Double
   public var device: String
   public var password: String
 
-  public init(userID: Int, postID: String, time: Double, device: String, password: String) {
+  public init(userID: String, postID: String, time: Double, device: String, password: String) {
     self.userID = userID
     self.postID = postID
     self.time = time

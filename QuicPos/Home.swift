@@ -10,7 +10,7 @@ import SwiftUI
 struct Home: View {
     
     //state allows modification during self invoke
-    @State var userId = UserDefaults.standard.integer(forKey: "userId")
+    @State var userId = UserDefaults.standard.string(forKey: "user") ?? ""
     @State var regulationsRead = UserDefaults.standard.bool(forKey: "regulations")
     @State var posts = [Post(text: "Loading...", loading: true), Post(text: "Loading...", loading: true)]
     @State var mode = "NORMAL"
@@ -211,7 +211,7 @@ struct Home: View {
     
     func reportView(){
         if (mode == "NORMAL"){
-            if (userId != 0 && posts[posts.count-2].ID != nil){
+            if (userId != "" && posts[posts.count-2].ID != nil){
                 let objectID = posts[posts.count-2].ID!.components(separatedBy: "\"")
                 let data = AppValues()
                 
@@ -308,7 +308,7 @@ struct Home: View {
     }
     
     func saveUserId(){
-        if self.userId == 0{
+        if self.userId == ""{
             group.enter()
             //send this code to async
             DispatchQueue.main.async {
@@ -320,7 +320,7 @@ struct Home: View {
                         switch result {
                         case .success(let graphQLResult):
                             if let userConnection = graphQLResult.data?.createUser {
-                                UserDefaults.standard.setValue(userConnection, forKey: "userId")
+                                UserDefaults.standard.setValue(userConnection, forKey: "user")
                                 self.userId = userConnection
                             }
                             if let errors = graphQLResult.errors {

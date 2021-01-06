@@ -10,9 +10,12 @@ import SwiftUI
 struct MyPosts: View {
     
     @State var postsids = UserDefaults.standard.stringArray(forKey: "myposts") ?? [String]()
-    @State var userId = UserDefaults.standard.integer(forKey: "userId")
+    @State var userId = UserDefaults.standard.string(forKey: "user") ?? ""
     @State var posts: [Post] = []
     @State var postsNumber = 0
+    
+    @State var removeMessage = ""
+    @State var removeAlert = false
     
     var body: some View {
         GeometryReader{ metrics in
@@ -21,9 +24,19 @@ struct MyPosts: View {
                     if posts.count != 0 {
                         ForEach(posts, id: \.ID){ post in
                             if !(post.blocked ?? true) {
-                                PostCard(post: post, metrics: metrics.size)
+                                PostCard(post: post, metrics: metrics.size){
+                                    postsids = postsids.filter{ $0 != post.ID }
+                                    UserDefaults.standard.set(postsids, forKey: "myposts")
+                                    self.removeMessage = "Your post has been deleted!"
+                                    self.removeAlert = true
+                                    postsNumber -= 1
+                                    posts = posts.filter{ $0.ID != post.ID }
+                                }
                             }
                         }
+                        .alert(isPresented: $removeAlert, content: {
+                            Alert(title: Text("Delete"), message: Text(removeMessage))
+                        })
                     } else {
                         Spacer(minLength: 15)
                         Text("Share or create posts to save them.")
@@ -62,7 +75,7 @@ struct MyPosts: View {
     }
     
     func getPosts(){
-        if userId != 0{
+        if userId != ""{
             posts.removeAll()
             let dispatchQueue = DispatchQueue(label: "mypostsget")
             let dispatchSemaphore = DispatchSemaphore(value: 0)
