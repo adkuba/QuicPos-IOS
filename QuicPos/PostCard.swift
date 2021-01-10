@@ -59,6 +59,7 @@ struct PostCard: View {
                                     HStack{
                                         Text("Delete")
                                             .font(.system(size: 16))
+                                            .foregroundColor(.red)
                                         
                                         Image(systemName: "minus.circle.fill")
                                             .foregroundColor(.red)
@@ -71,6 +72,7 @@ struct PostCard: View {
                             Link("Statistics", destination: URL(string: "https://www.quicpos.com/stats/" + (post.ID ?? "error"))!)
                                 .font(.system(size: 16))
                                 .frame(width: metrics.width * 0.9, height: 17, alignment: .leading)
+                                .foregroundColor(.gray)
                                 .padding()
                         }
                     }

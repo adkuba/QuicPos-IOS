@@ -33,6 +33,7 @@ struct PostView: View {
     @State var blurValue = CGFloat(0)
     @State var showingSheet = false
     @State var url = ""
+    let data = AppValues()
     
     @State var shareErrorMessage = ""
     @State var shareAlertShow = false
@@ -40,6 +41,9 @@ struct PostView: View {
     @State var reportMessage = ""
     @State var reportAlertShow = false
     @State var textParsed: [String] = []
+    @State var confirmationBlockAlert = false
+    @State var blockAlert = false
+    @State var blockAlertMessage = ""
 
     var body: some View {
         GeometryReader { metrics in
@@ -47,11 +51,36 @@ struct PostView: View {
                 VStack{
                     //id
                     Spacer(minLength: 30)
-                    Text(((post.ad ?? false) ? "Promoted @" : "User @") + (post.userid ?? "auto").prefix(4))
-                        .font(.system(size: 15))
-                        .foregroundColor(.gray)
-                        .padding()
-                        .frame(width: metrics.size.width, height: 17, alignment: .leading)
+                    HStack{
+                        Text(((post.ad ?? false) ? "Promoted @" : "User @") + (post.userid ?? "auto").prefix(4))
+                            .font(.system(size: 15))
+                            .foregroundColor(.gray)
+                        
+                        Spacer()
+                        
+                        Button(action: {
+                            self.confirmationBlockAlert = true
+                            self.blockAlert = false
+                        }, label: {
+                            Text("Block")
+                                .font(.system(size: 15))
+                                .foregroundColor(.gray)
+                        })
+                        .alert(isPresented: $confirmationBlockAlert, content: {
+                            if (blockAlert){
+                                return Alert(title: Text("Block"), message: Text(blockAlertMessage))
+                            } else {
+                                return Alert(
+                                    title: Text("Are you sure?"),
+                                    message: Text("Do you really want to block this user? You can unblock by contacting us."),
+                                    primaryButton: .destructive(Text("Yes"), action: blockUser),
+                                    secondaryButton: .cancel(Text("No"))
+                                )
+                            }
+                        })
+                    }
+                    .padding()
+                    .frame(width: metrics.size.width, height: 17, alignment: .leading)
                     
                     //text
                     LinkedText(post.text)
@@ -180,6 +209,29 @@ struct PostView: View {
         }
     }
     
+    func blockUser(){
+        Network.shared.apollo
+            .perform(mutation: BlockUserMutation(reqUser: userId, blockUser: post.userid ?? "", password: data.password)) { result in
+                switch result {
+                case .success(let graphQLResult):
+                    if let blockConnection = graphQLResult.data?.blockUser {
+                        if (blockConnection) {
+                            self.blockAlertMessage = "Success, user blocked!"
+                        } else {
+                            self.blockAlertMessage = "Bad block return! Contact us to resolve the issue."
+                        }
+                    }
+                    if let errors = graphQLResult.errors {
+                        self.blockAlertMessage = errors.map { $0.localizedDescription }.joined(separator: "\n")
+                    }
+                case .failure(let error):
+                    self.blockAlertMessage = error.localizedDescription
+                }
+                self.blockAlert = true
+                self.confirmationBlockAlert = true
+            }
+    }
+    
     func reportPost(){
         if (post.ID != nil){
             let objectID = post.ID!.components(separatedBy: "\"")
@@ -222,7 +274,6 @@ struct PostView: View {
             } else {
                 id = objectID[1]
             }
-            let data = AppValues()
             
             Network.shared.apollo
                 .perform(mutation: ShareMutation(userID: userId, postID: id, password: data.password)) { result in

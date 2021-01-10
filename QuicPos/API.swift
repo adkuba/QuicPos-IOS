@@ -4,6 +4,61 @@
 import Apollo
 import Foundation
 
+public final class BlockUserMutation: GraphQLMutation {
+  /// The raw GraphQL definition of this operation.
+  public let operationDefinition: String =
+    """
+    mutation BlockUser($reqUser: String!, $blockUser: String!, $password: String!) {
+      blockUser(input: {reqUser: $reqUser, blockUser: $blockUser}, password: $password)
+    }
+    """
+
+  public let operationName: String = "BlockUser"
+
+  public var reqUser: String
+  public var blockUser: String
+  public var password: String
+
+  public init(reqUser: String, blockUser: String, password: String) {
+    self.reqUser = reqUser
+    self.blockUser = blockUser
+    self.password = password
+  }
+
+  public var variables: GraphQLMap? {
+    return ["reqUser": reqUser, "blockUser": blockUser, "password": password]
+  }
+
+  public struct Data: GraphQLSelectionSet {
+    public static let possibleTypes: [String] = ["Mutation"]
+
+    public static var selections: [GraphQLSelection] {
+      return [
+        GraphQLField("blockUser", arguments: ["input": ["reqUser": GraphQLVariable("reqUser"), "blockUser": GraphQLVariable("blockUser")], "password": GraphQLVariable("password")], type: .nonNull(.scalar(Bool.self))),
+      ]
+    }
+
+    public private(set) var resultMap: ResultMap
+
+    public init(unsafeResultMap: ResultMap) {
+      self.resultMap = unsafeResultMap
+    }
+
+    public init(blockUser: Bool) {
+      self.init(unsafeResultMap: ["__typename": "Mutation", "blockUser": blockUser])
+    }
+
+    public var blockUser: Bool {
+      get {
+        return resultMap["blockUser"]! as! Bool
+      }
+      set {
+        resultMap.updateValue(newValue, forKey: "blockUser")
+      }
+    }
+  }
+}
+
 public final class CreatePostMutation: GraphQLMutation {
   /// The raw GraphQL definition of this operation.
   public let operationDefinition: String =
