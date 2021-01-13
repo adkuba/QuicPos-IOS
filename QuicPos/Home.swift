@@ -134,7 +134,9 @@ struct Home: View {
             //group notify will run when enter() and leave() are balanced, waits for userId to be downloaded
             group.notify(queue: .main) {
                 getPost()
-                getPost()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    getPost()
+                }
             }
         })
         .navigationBarTitle(Text("QuicPos"), displayMode: .inline)
@@ -178,7 +180,7 @@ struct Home: View {
                 resumeTimer()
             }
         }
-        else if posts[posts.count-2].ID != nil {
+        else {
             reportView()
             posts.append(Post(text: "Loading...", loading: true))
             if posts.count > 10 {
@@ -210,13 +212,15 @@ struct Home: View {
     }
     
     func reportView(){
+        let time = stopTimer()
+        self.viewError = ""
         if (mode == "NORMAL"){
             if (userId != "" && posts[posts.count-2].ID != nil){
                 let objectID = posts[posts.count-2].ID!.components(separatedBy: "\"")
                 let data = AppValues()
                 
                 Network.shared.apollo
-                    .perform(mutation: ViewMutation(userID: userId, postID: objectID[1], time: stopTimer(), device: getDevice(), password: data.password)) { result in
+                    .perform(mutation: ViewMutation(userID: userId, postID: objectID[1], time: time, device: getDevice(), password: data.password)) { result in
                         switch result {
                         case .success(let graphQLResult):
                             if let viewConnection = graphQLResult.data?.view {
@@ -234,9 +238,6 @@ struct Home: View {
                             self.viewAlertShow = true
                         }
                     }
-            } else {
-                self.viewError = "No userID or postID!"
-                self.viewAlertShow = true
             }
         }
     }
@@ -275,7 +276,7 @@ struct Home: View {
         Network.shared.apollo
             .fetch(query: GetPostQuery(userID: userId, normalMode: normalMode, password: data.password, ad: ad), cachePolicy: .fetchIgnoringCacheCompletely) { result in
                 var index = posts.count-1
-                if posts[posts.count-2].ID == nil{
+                if posts[posts.count-2].loading == true{
                     index = posts.count-2
                 }
                 switch result {
@@ -297,14 +298,19 @@ struct Home: View {
                         }
                     }
                     if let errors = graphQLResult.errors {
-                        self.posts[index] = Post(text: errors
-                                                            .map { $0.localizedDescription }
-                                                            .joined(separator: "\n"))
+                        self.posts[index] = Post(text: "Error: " + getDate() + "\n" + errors.map { $0.localizedDescription }.joined(separator: "\n") + "\n\nTap next post arrow to retry." )
                     }
                 case .failure(let error):
-                    self.posts[index] = Post(text: error.localizedDescription)
+                    self.posts[index] = Post(text: "Error: " + getDate() + "\n" + error.localizedDescription + "\n\nTap next post arrow to retry." )
                 }
             }
+    }
+    
+    func getDate() -> String{
+        let today = Date()
+        let formatter2 = DateFormatter()
+        formatter2.timeStyle = .medium
+        return formatter2.string(from: today)
     }
     
     func saveUserId(){
@@ -324,12 +330,10 @@ struct Home: View {
                                 self.userId = userConnection
                             }
                             if let errors = graphQLResult.errors {
-                                self.posts[posts.count-2] = Post(text: errors
-                                                    .map { $0.localizedDescription }
-                                                    .joined(separator: "\n"))
+                                self.posts[posts.count-2] = Post(text: "Error: " + getDate() + "\n" + errors.map { $0.localizedDescription }.joined(separator: "\n") + "\n\nReset application to retry.")
                             }
                         case .failure(let error):
-                            self.posts[posts.count-2] = Post(text: error.localizedDescription)
+                            self.posts[posts.count-2] = Post(text: "Error: " + getDate() + "\n" + error.localizedDescription + "\n\nReset application to retry.")
                         }
                         //notify results are downloaded
                         group.leave()
