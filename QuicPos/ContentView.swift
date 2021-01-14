@@ -7,9 +7,7 @@
 
 import SwiftUI
 
-struct AppValues {
-    var password = ""
-}
+//WARNING create AppValues file with struct containing password field
 
 struct ContentView: View {
     

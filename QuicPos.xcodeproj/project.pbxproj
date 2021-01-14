@@ -25,6 +25,7 @@
 		8CB26C072565AEC7003ECB7E /* MyPosts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CB26C062565AEC7003ECB7E /* MyPosts.swift */; };
 		8CB26C0C2565B7CD003ECB7E /* PostCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CB26C0B2565B7CD003ECB7E /* PostCard.swift */; };
 		8CB7F3C4256B010400EFCA3B /* LinkedText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CB7F3C3256B010400EFCA3B /* LinkedText.swift */; };
+		8CC4797425B0A4D400E5FB3D /* AppValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CC4797325B0A4D400E5FB3D /* AppValues.swift */; };
 		8CEC516625320E2F0056FB75 /* Creator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CEC516525320E2E0056FB75 /* Creator.swift */; };
 		8CEC516E2532F63D0056FB75 /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CEC516D2532F63C0056FB75 /* ImageLoader.swift */; };
 /* End PBXBuildFile section */
@@ -77,6 +78,7 @@
 		8CBE9818254165FB007BF460 /* NewShare.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = NewShare.graphql; sourceTree = "<group>"; };
 		8CBE981C2541701F007BF460 /* NewReport.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = NewReport.graphql; sourceTree = "<group>"; };
 		8CBE98232541D454007BF460 /* NewView.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = NewView.graphql; sourceTree = "<group>"; };
+		8CC4797325B0A4D400E5FB3D /* AppValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppValues.swift; sourceTree = "<group>"; };
 		8CEC4EA42566974900F13FDC /* GetViewerPost.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = GetViewerPost.graphql; sourceTree = "<group>"; };
 		8CEC516525320E2E0056FB75 /* Creator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Creator.swift; sourceTree = "<group>"; };
 		8CEC516D2532F63C0056FB75 /* ImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
@@ -158,6 +160,7 @@
 				8C0BE0272571450D001701A2 /* Home.swift */,
 				8C3C778425A5B051005F83D4 /* DeletePost.graphql */,
 				8C9793C825A9B70D007BE19F /* BlockUser.graphql */,
+				8CC4797325B0A4D400E5FB3D /* AppValues.swift */,
 			);
 			path = QuicPos;
 			sourceTree = "<group>";
@@ -358,6 +361,7 @@
 				8CB26C072565AEC7003ECB7E /* MyPosts.swift in Sources */,
 				8C6C8792252C569800D4D042 /* PostView.swift in Sources */,
 				8C6CC3852528CDB8005E6430 /* QuicPosApp.swift in Sources */,
+				8CC4797425B0A4D400E5FB3D /* AppValues.swift in Sources */,
 				8C92C7FC257049690064CF0D /* PostViewContainer.swift in Sources */,
 				8CB26C0C2565B7CD003ECB7E /* PostCard.swift in Sources */,
 			);
