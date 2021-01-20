@@ -20,6 +20,10 @@ struct Post {
     var ad: Bool?
 }
 
+struct Helper {
+    static var id = ""
+}
+
 struct PostView: View {
     
     var post: Post
@@ -32,7 +36,6 @@ struct PostView: View {
     @State var timer = Timer.publish(every: 0.6, on: .main, in: .common).autoconnect()
     @State var blurValue = CGFloat(0)
     @State var showingSheet = false
-    @State var url = ""
     let data = AppValues()
     
     @State var shareErrorMessage = ""
@@ -205,7 +208,7 @@ struct PostView: View {
             initNewImage(image: post.image)
         })
         .sheet(isPresented: $showingSheet) {
-            ActivityView(activityItems: [NSURL(string: "https://www.quicpos.com/post/" + url)!] as [Any], applicationActivities: nil)
+            ActivityView(activityItems: [NSURL(string: "https://www.quicpos.com/post/" + Helper.id)!] as [Any], applicationActivities: nil)
         }
     }
     
@@ -281,7 +284,7 @@ struct PostView: View {
                     case .success(let graphQLResult):
                         if let shareConnection = graphQLResult.data?.share {
                             if (shareConnection) {
-                                self.url = id
+                                Helper.id = id
                                 self.showingSheet = true
                                 
                                 var postids = UserDefaults.standard.stringArray(forKey: "myposts") ?? [String]()
