@@ -9,7 +9,6 @@ import SwiftUI
 
 struct Home: View {
     
-    //state allows modification during self invoke
     @State var userId = UserDefaults.standard.string(forKey: "user") ?? ""
     @State var regulationsRead = UserDefaults.standard.bool(forKey: "regulations")
     @State var posts = [Post(text: "Loading...", loading: true), Post(text: "Loading...", loading: true)]

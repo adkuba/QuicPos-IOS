@@ -1,45 +1,59 @@
-# QuicPos-IOS
-QuicPos client IOS application. SwiftUI
+# Table of contents
+- [What I've learned](#what-ive-learned)
+- [SwiftUI](#swiftui)
+  - [About](#about)
+  - [More](#more)
+- [Application](#application)
+- [Apollo](#apollo)
+  - [Usage](#usage)
 
-## SwiftUI
-W Swift UI mamy widoki - są to jakby views na frontendzie - osobne strony. Widoki moga być również komponentami - możemy je wykorzystywać wiele razy w innych widokach. Modyfikacje tych widoków prawie jak w css takimi atrybutami. Aby przechodzić między stronami mamy Navigation View albo np Tab View. Ciekawy opis SwiftUI [opis](https://fuckingswiftui.com)
 
-## XCode-Swift notes
-- Sometimes you need to log in again to Apple account: Xcode -> Preference -> Accounts
-- Im using SwiftUI [great tutorial](https://developer.apple.com/tutorials/swiftui/composing-complex-interfaces), **it's all based on views like components in Vue, you combine them and switch between**
-- QuicPosApp.swift is like in SpringBoot main function that starts app (?)
-- Miałem ostatnio taki bug że strasznie wolno włączała mi się aplikacja na telefonie. Wystarczyło usunąć foldery w <code>/Users/kuba/Library/Developer/Xcode</code> oraz ponownie uruchomić aplikację.
 
-## Apollo usage
-- download schema from your QraphQL server [tutorial](https://www.apollographql.com/docs/ios/tutorial/tutorial-obtain-schema/) -> project settings - target - build phases - (add ApolloCLI build phase)
+# What I've learned
+- How to create client application in **SwiftUI** for **iPhone** and **iPad**
+- Working with **Apollo GraphQL**
+- Deploying application to **App Store**
+- Using pure **Swift**
+
+
+
+# SwiftUI
+### About
+SwiftUI is the newer wersion of Swift. It offers better integration of UI and code. It is the future of development for all Apple platforms. Right now SwiftUI is in the early state so knowledge of pure Swift methods for UI is and probably always will be very useful. [More info](https://fuckingswiftui.com)
+- <code>QuicPosApp.swift</code> is like in SpringBoot main function that starts app
+- [About async wait functions](https://stackoverflow.com/questions/42484281/waiting-until-the-task-finishes/42484670), example <code>DispatchGroup</code> for async operations.
+- <code>@State</code> allows variable modification when invoking with <code>self.variable_name</code>
+
+
+
+### More
+SwiftUI works like views on forntend (example Vue) - seperate pages. Views can also be components - we can re-use them multiple times. We can modify this views with attributes just like for example css. To switch between pages use NavigationView or TabView. 
+- [Tutorial](https://developer.apple.com/tutorials/swiftui/composing-complex-interfaces)
+
+
+
+# Application
+Application notes:
+- I've created 2 seperate looks for iPad and iPhone. Mainly conditional components - see for example <code>ContentView.swift</code> file.
+- Create <code>AppValues.swift</code> file with struct and general password variable!
+- <code>LinkedText.swift</code> [source](https://gist.github.com/mjm/0581781f85db45b05e8e2c5c33696f88) and my modification.
+
+
+
+# XCode
+XCode important notes:
+- Sometimes you need to log in again to Apple account: <code>Xcode -> Preference -> Accounts</code>
+- Bug with slow application start on the devide re simulator. Delete folders in: <code>/Users/kuba/Library/Developer/Xcode</code> and relaunch XCode.
+
+
+
+# Apollo
+Apollo - package to use GraphQL in Swift. [Tutorial](https://www.apollographql.com/docs/ios/tutorial/tutorial-obtain-schema/)
+### Usage
+To download schema form server uncomment last line and comment first line. First line builds methods, <code>API.swift</code> file, from donloaded schema. This it part of the file in: <code>project settings - target - build phases - apollo CLI</code>
 ```sh
-# Go to the build root and search up the chain to find the Derived Data Path where the source packages are checked out.
-DERIVED_DATA_CANDIDATE="${BUILD_ROOT}"
-
-while ! [ -d "${DERIVED_DATA_CANDIDATE}/SourcePackages" ]; do
-  if [ "${DERIVED_DATA_CANDIDATE}" = / ]; then
-    echo >&2 "error: Unable to locate SourcePackages directory from BUILD_ROOT: '${BUILD_ROOT}'"
-    exit 1
-  fi
-
-  DERIVED_DATA_CANDIDATE="$(dirname "${DERIVED_DATA_CANDIDATE}")"
-done
-
-# Grab a reference to the directory where scripts are checked out
-SCRIPT_PATH="${DERIVED_DATA_CANDIDATE}/SourcePackages/checkouts/apollo-ios/scripts"
-
-if [ -z "${SCRIPT_PATH}" ]; then
-    echo >&2 "error: Couldn't find the CLI script in your checked out SPM packages; make sure to add the framework to your project."
-    exit 1
-fi
-
-cd "${SRCROOT}/${TARGET_NAME}"
 "${SCRIPT_PATH}"/run-bundled-codegen.sh codegen:generate --target=swift --includes=./**/*.graphql --localSchemaFile="schema.json" API.swift
 #"${SCRIPT_PATH}"/run-bundled-codegen.sh schema:download --endpoint="http://192.168.8.106:8080/query"
 ```
-Commented last line downloads schema from endpoint, line before creates API.swift from downloaded schema. First download then generate! Remember to add files to your project, only API.swift must be included in app package.
-- create Network.swift - basic Apollo client
-- example data fetch in ContentView.swift - I hope it's implemented correctly
 
-## Swift notes
-[About async wait functions](https://stackoverflow.com/questions/42484281/waiting-until-the-task-finishes/42484670)
+First download then generate! Only <code>API.swift</code> and <code>Network.swift</code> must be included to the app package. Seperate <code>.graphql</code> files are not included in the package, but they contain the graphql definition of needed endpoint. See API documentation in server [repository](https://github.com/adkuba/QuicPos-Server).
